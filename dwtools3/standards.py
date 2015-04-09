@@ -61,16 +61,15 @@ Django Standards
             import warnings
             warnings.filterwarnings(
                 'error', r"DateTimeField received a naive datetime",
-                RuntimeWarning, r'django\.db\.models\.fields')
+                RuntimeWarning, r'django\\.db\\.models\\.fields')
 
 
 Module Documentation
 --------------------
 """
-
 import os
-#import .module.sub_module
-#from .module.sub_module import OtherClass
+# import .module.sub_module
+# from .module.sub_module import OtherClass
 
 
 PUBLIC_MODULE_CONSTANT = 'A public constant'
@@ -213,13 +212,13 @@ class TextAlignEnum(object):
     Enumeration of different text alignment options.
 
     """
-    LEFT                = 'left'
+    LEFT = 'left'
     """Left-align the text."""
 
-    RIGHT               = 'right'
+    RIGHT = 'right'
     """Right-align the text."""
 
-    CENTER              = 'center'
+    CENTER = 'center'
     """Center the text."""
 
 
