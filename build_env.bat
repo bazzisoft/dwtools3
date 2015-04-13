@@ -9,5 +9,6 @@ pip install sphinx
 pip install django
 pip install pep8
 pip install autopep8
+pip install pylint
 
 pause

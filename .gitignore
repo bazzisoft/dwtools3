@@ -3,3 +3,6 @@ __pycache__
 *.pyc
 *.swp
 /dwtools3/_docs/build
+/.pydevproject
+/.project
+/.settings
