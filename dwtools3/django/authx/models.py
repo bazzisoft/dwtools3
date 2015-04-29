@@ -13,6 +13,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.mail import send_mail
 from dwtools3.django.helpers.models import check_model_is_unique_with_conditions
+from dwtools3.django.helpers.fields import StrippedCharField
 from ..helpers.inheritance import InheritanceManagerMixin
 from .settings import AuthXSettings
 
@@ -72,8 +73,8 @@ class AuthXAbstactUser(AbstractBaseUser, PermissionsMixin):
         error_messages={
             'unique': _("A user with that username already exists."),
         })
-    first_name = models.CharField(_('first name'), max_length=50, blank=True)
-    last_name = models.CharField(_('last name'), max_length=50, blank=True)
+    first_name = StrippedCharField(_('first name'), max_length=128, blank=True)
+    last_name = StrippedCharField(_('last name'), max_length=128, blank=True)
     email = models.EmailField(_('email address'), max_length=254, blank=True)
     is_staff = models.BooleanField(_('staff status'), default=False,
         help_text=_('Designates whether the user can log into this admin '

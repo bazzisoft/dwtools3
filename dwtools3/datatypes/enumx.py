@@ -33,6 +33,9 @@ Usage
     >>> SQLSortable.ONE.value
     'One'
 
+    >>> str(SQLSortable.ONE)
+    '10-ONE'
+
     >>> Regular.all()
     # Returns an iterable of key-value tuples
 
@@ -63,6 +66,12 @@ class EnumX(enum.Enum):
         Returns the key-value pair of this enum instance.
         """
         return (self.key, self.value)
+
+    def __hash__(self):
+        return super().__hash__()
+
+    def __str__(self):
+        return self.key
 
     def _cmp(self, other, op):
         if self.__class__ is other.__class__:
