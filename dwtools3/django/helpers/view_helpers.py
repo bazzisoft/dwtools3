@@ -6,19 +6,33 @@ from functools import wraps
 from django.contrib.auth.decorators import user_passes_test
 
 
-# TODO: Support multiple forms: Add keyword arg to specify a POST variable that must be set in order to validate the form
-def validate_form(request, form_cls, prefix=None, initial=None, instance=None, **extra_kwargs):
+def validate_form(request, form_cls, initial=None, instance=None, condition=True, **extra_kwargs):
     """
     Creates a form instance with/without data depending
     on whether page was POSTed. Returns the form instance.
+
+    :param HttpRequest request: The request object.
+    :param Form form_cls: The form class to be instantiated and validated.
+    :param dict initial: Initial values for form fields.
+    :param type instance: An initial model instance for ModelForms.
+    :param bool condition: A boolean indicating whether this form should be validated
+        from POST. Useful if there are multiple forms on the page::
+
+            form = validate_form(request, MyForm, condition=('myformsubmit' in request.POST))
+
+    :param **extra_kwargs: Any extra kwargs passed to the form constructor.
+
+    :returns: The validated form class instance, after calling ``full_clean()``.
     """
-    kwargs = dict(prefix=prefix, initial=initial)
+    kwargs = {}
+    if initial is not None:
+        kwargs['initial'] = initial
     if instance is not None:
         kwargs['instance'] = instance
     if extra_kwargs:
         kwargs.update(extra_kwargs)
 
-    if request.method == 'POST':
+    if request.method == 'POST' and condition:
         form = form_cls(data=request.POST, files=(request.FILES if len(request.FILES) else None), **kwargs)
     else:
         form = form_cls(**kwargs)
