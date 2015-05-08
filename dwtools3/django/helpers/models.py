@@ -115,6 +115,14 @@ class OrderedModelManager(models.Manager):
                 models_to_update[item.id].ordering = next_ordering
             next_ordering += 100
 
+    def rebalance_ordering_for_all_records(self):
+        """
+        Rebalances the ordering for all possible values of ``order_within_fields``.
+        """
+        item_filters = self.distinct().values(*self.model._meta.order_within_fields)
+        for flt in item_filters:
+            self.rebalance_ordering(**flt)
+
 
 class OrderedModel(models.Model):
     """
