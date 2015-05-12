@@ -20,7 +20,7 @@ def validate_form(request, form_cls, initial=None, instance=None, condition=True
 
             form = validate_form(request, MyForm, condition=('myformsubmit' in request.POST))
 
-    :param **extra_kwargs: Any extra kwargs passed to the form constructor.
+    :param extra_kwargs: Any extra kwargs passed to the form constructor.
 
     :returns: The validated form class instance, after calling ``full_clean()``.
     """

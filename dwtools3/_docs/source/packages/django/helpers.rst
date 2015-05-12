@@ -31,3 +31,10 @@ View Helper Functions
 
 .. automodule:: dwtools3.django.helpers.view_helpers
    :members:
+
+   
+Raw SQL
+-------
+
+.. automodule:: dwtools3.django.helpers.sql
+   :members:
