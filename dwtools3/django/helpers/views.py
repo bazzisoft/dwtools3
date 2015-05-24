@@ -24,6 +24,6 @@ def template_view(template, *args, **kwargs):
         url(r'^500/$', template_view('500.html', context=Context())),
     """
     def view_func(request):
-        return render(request, *args, **kwargs)
+        return render(request, template, *args, **kwargs)
 
     return view_func
