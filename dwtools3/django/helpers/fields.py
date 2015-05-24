@@ -14,3 +14,18 @@ class StrippedCharField(models.CharField):
     def to_python(self, value):
         ret = super().to_python(value)
         return ret.strip() if ret is not None else ret
+
+
+class StrippedTextField(models.TextField):
+    """
+    Regular ``TextField`` but stripped of leading/trailing whitespace.
+    """
+    description = _("Text stripped of whitespace")
+
+    def to_python(self, value):
+        ret = super().to_python(value)
+        return ret.strip() if ret is not None else ret
+
+    def get_prep_value(self, value):
+        ret = super().get_prep_value(value)
+        return ret.strip() if ret is not None else ret

@@ -1,6 +1,5 @@
 TODO - dwtools3
 ===============
-- **RawSQL:** `sql.execute()` context manager? should close cursor?
 - **AJAX/JSON decorators:** should use new JSONResponse class.
 
 
