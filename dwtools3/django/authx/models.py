@@ -109,7 +109,9 @@ class AuthXAbstactUser(AbstractBaseUser, PermissionsMixin):
 
     def clean(self):
         if getattr(self._meta, 'authx_username_case_insensitive', True):
-            check_model_is_unique_with_conditions(self, ('username',), error_field='username', case_insensitive=True)
+            msg = self._meta.get_field('username').error_messages['unique']
+            check_model_is_unique_with_conditions(self, ('username',), error_message=msg,
+                                                  error_field='username', case_insensitive=True)
 
     def get_full_name(self):
         """

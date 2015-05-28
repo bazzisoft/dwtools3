@@ -1,5 +1,7 @@
 TODO - dwtools3
 ===============
+- Context manager or function to run multiple validation functions
+  and collate all error messages into local dict or something
 - **AJAX/JSON decorators:** should use new JSONResponse class.
 
 

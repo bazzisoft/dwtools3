@@ -213,8 +213,8 @@ def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_cond
 
     if qs.count() > 0:
         if error_message is None:
-            model_name = str(capfirst(model._meta.verbose_name))
-            field_labels = [capfirst(model._meta.get_field(f).verbose_name) for f in unique_fields]
+            model_name = str(model._meta.verbose_name)
+            field_labels = [model._meta.get_field(f).verbose_name for f in unique_fields]
             field_labels = str(get_text_list(field_labels, _('and')))
             error_message = _('A {} with this {} already exists.').format(model_name, field_labels)
         if error_field is None:
