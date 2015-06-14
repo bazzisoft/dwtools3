@@ -1,0 +1,11 @@
+{% load i18n %}
+
+{% if not is_popup %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_name }}</a>
+    {% if model_name %}&rsaquo; <a href="{% url model_urlname %}">{{ model_name|capfirst }}</a>{% endif %}
+    {% if instance %}&rsaquo; <a href="{% url instance_urlname instance.pk %}">{{ instance|truncatewords:'18' }}</a>{% endif %}
+    &rsaquo; {{ title }}
+  </div>
+{% endif %}
