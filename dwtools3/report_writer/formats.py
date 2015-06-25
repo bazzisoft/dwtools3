@@ -15,6 +15,9 @@ class IFormatter:
         """
         Format the value ``v`` for the given ``datatype``.
         """
+        if v is None:
+            return ''
+
         try:
             return getattr(self, datatype.value)(v) if datatype is not None else str(v)
         except (AttributeError, TypeError, ValueError):

@@ -1,11 +1,5 @@
+from datetime import datetime
 from pyexcelerate import Workbook, Range, Style, Fill, Color, Font, Format, Alignment
-
-
-class ExcelWriterError(IOError):
-    """
-    Raised if an IO or data error occurs creating the XLSX file.
-    """
-    pass
 
 
 class ExcelStyle:
@@ -207,10 +201,16 @@ class ExcelWriter:
             style = ()
 
         for j, val in enumerate(rowdata):
+            # Strip tzinfo from datetime objects. They
+            # need to be localized before writing.
+            if isinstance(val, datetime):
+                val = val.replace(tzinfo=None)
+
             # Coerce bool to int, excel can't format bools
             # You can use this number_format for coerced value:
             # '&quot;Yes&quot;;&quot;Yes&quot;;&quot;No&quot;'
-            val = (1 if val else 0) if isinstance(val, bool) else val
+            elif isinstance(val, bool):
+                val = 1 if val else 0
 
             self._sheet.set_cell_value(i, j + 1, val)
             if val is not None and j < len(style) and style[j] is not None:
@@ -228,10 +228,7 @@ class ExcelWriter:
         Writes out the Excel data to the file/stream and
         invalidates this instance.
         """
-        try:
-            if isinstance(self._stream, str):
-                self._workbook.save(self._stream)
-            else:
-                self._workbook._save(self._stream)
-        except Exception as e:
-            raise ExcelWriterError from e
+        if isinstance(self._stream, str):
+            self._workbook.save(self._stream)
+        else:
+            self._workbook._save(self._stream)

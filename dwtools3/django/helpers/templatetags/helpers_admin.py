@@ -9,15 +9,14 @@ register = template.Library()
 def render_breadcrumbs(title, app=None, model=None, instance=None, is_popup=False):
     """
     Renders the Django admin breadcrumb trail.
- 
+
     eg::
-        
+
+            {% render_breadcumbs 'My Page' %}
             {% render_breadcumbs 'My Page' app='auth' %}
             {% render_breadcumbs 'My Page' model=User %}
             {% render_breadcumbs 'My Page' instance=request.user %}
     """
-    assert app or model or instance
-
     if instance:
         model = type(instance)
 

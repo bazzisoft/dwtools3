@@ -1,14 +1,19 @@
 from enum import Enum
-
+from .utils import OutputDef
 
 class OutputType(Enum):
     """
     Enum of output data formats that can be written by the report writer.
+
+    The value of each enum is an ``OutputDef`` object with the following attributes:
+
+    ``content_type``, ``extension``, ``is_binary``, ``file_mode``, ``open_kwargs``.
     """
-    HTML = 'html'
-    HTML_FULL_PAGE = 'html_full_page'
-    EXCEL = 'excel'
-    CSV = 'csv'
+    HTML = OutputDef(content_type='text/html', extension='html', is_binary=False)
+    HTML_FULL_PAGE = OutputDef(content_type='text/html', extension='html', is_binary=False)
+    CSV = OutputDef(content_type='text/csv', extension='csv', is_binary=False, open_kwargs={'newline': ''})
+    EXCEL = OutputDef(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                      extension='xlsx', is_binary=True)
 
 
 class DataType(Enum):

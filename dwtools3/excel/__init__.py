@@ -37,12 +37,12 @@ Members
 -------
 """
 from .reader import ExcelReader, ExcelReaderError
-from .writer import ExcelWriter, ExcelStyle, ExcelWriterError
+from .writer import ExcelWriter, ExcelStyle
 from .dictwriter import ExcelDictWriter
 
 
 __all__ = [
     'ExcelReader', 'ExcelReaderError',
-    'ExcelWriter', 'ExcelStyle', 'ExcelReaderError',
+    'ExcelWriter', 'ExcelStyle',
     'ExcelDictWriter',
 ]

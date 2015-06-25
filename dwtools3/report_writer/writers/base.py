@@ -39,6 +39,13 @@ class IReportWriter:
         """
         raise NotImplementedError
 
+    def writerows(self, rowdicts, rowstyle=None):
+        """
+        Write multiple rows of data, with no or the same styling.
+        """
+        for rowdict in rowdicts:
+            self.writerow(rowdict, rowstyle=rowstyle)
+
     def close(self, exception_was_raised=False):
         """
         Writes out any footer data and closes the writer. Called automatically

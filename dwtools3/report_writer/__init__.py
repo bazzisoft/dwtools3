@@ -10,6 +10,9 @@ Dependencies
 
 Usage
 -----
+NOTE: You should localize any ``datetime`` objects before writing into the reports,
+as any timezone info is stripped out before rendering.
+
 ::
 
     from dwtools3 import report_writer as rw
