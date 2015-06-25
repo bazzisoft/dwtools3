@@ -10,5 +10,7 @@ pip install django
 pip install pep8
 pip install autopep8
 pip install pylint
+pip install openpyxl
+pip install PyExcelerate
 
 pause
