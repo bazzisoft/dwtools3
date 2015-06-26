@@ -70,6 +70,10 @@ class HTMLReportWriter(IReportWriter):
 
     def _write_styles(self):
         styles = []
+
+        if self.full_page:
+            styles.append('body { font-family: Calibri, Helvetica, Arial, sans-serif; font-size: 11pt; }')
+
         styles.append('#{} {{ border-collapse: collapse; }}'.format(self.table_id))
         styles.append('#{} td {{ border: 1px solid #ddd; padding: 3px 6px; {} }}'
                       .format(self.table_id, self._css_for_style(self.definition.default_style)))
