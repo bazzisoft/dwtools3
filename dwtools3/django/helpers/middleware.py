@@ -19,6 +19,9 @@ class PerformanceStatsMiddleware(object):
         MIDDLEWARE_CLASSES = (
             'dwtools3.django.helpers.middleware.PerformanceStatsMiddleware',
         ) + MIDDLEWARE_CLASSES
+
+    If you have "debug only" middleware that shouldn't be measured, place it
+    before ``PerformanceStatsMiddleware``.
     """
     def process_request(self, request):
         setattr(request, STATS_KEY, {
@@ -30,24 +33,24 @@ class PerformanceStatsMiddleware(object):
         stats = getattr(request, STATS_KEY)
         stats['view_start'] = time()
         stats['middleware_db_queries'] = len(connection.queries)
-        stats['middleware_db_time'] = functools.reduce(operator.add, (float(q['time']) for q in connection.queries))
+        stats['middleware_db_time'] = functools.reduce(operator.add, (float(q['time']) for q in connection.queries), 0.0)
         return None
 
     def process_response(self, request, response):
-        stats = getattr(request, STATS_KEY)
-        if not stats['view_start']:
+        stats = getattr(request, STATS_KEY, None)
+        if stats is None or not stats['view_start']:
             return response
 
         stats['end'] = time()
         stats['total_time'] = stats['end'] - stats['start']
         stats['db_queries'] = len(connection.queries)
-        stats['db_time'] = functools.reduce(operator.add, (float(q['time']) for q in connection.queries))
+        stats['db_time'] = functools.reduce(operator.add, (float(q['time']) for q in connection.queries), 0.0)
         stats['python_time'] = stats['total_time'] - stats['db_time']
 
-        stats['middleware_total_time'] = stats['end'] - stats['view_start']
+        stats['middleware_total_time'] = stats['view_start'] - stats['start']
         stats['middleware_python_time'] = stats['middleware_total_time'] - stats['middleware_db_time']
 
-        stats['view_total_time'] = stats['view_start'] - stats['start']
+        stats['view_total_time'] = stats['end'] - stats['view_start']
         stats['view_db_queries'] = stats['db_queries'] - stats['middleware_db_queries']
         stats['view_db_time'] = stats['db_time'] - stats['middleware_db_time']
         stats['view_python_time'] = stats['view_total_time'] - stats['view_db_time']
