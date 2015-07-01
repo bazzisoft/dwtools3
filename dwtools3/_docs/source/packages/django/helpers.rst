@@ -38,3 +38,10 @@ Raw SQL
 
 .. automodule:: dwtools3.django.helpers.sql
    :members:
+
+   
+Middleware
+----------
+
+.. automodule:: dwtools3.django.helpers.middleware
+   :members:
