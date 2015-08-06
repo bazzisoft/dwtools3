@@ -6,7 +6,26 @@ from django.http.response import HttpResponse
 from django.utils.html import escapejs
 
 
-STATS_KEY = '_performancestatsmiddleware'
+class TranslateProxyRemoteAddrMiddleware(object):
+    """
+    Proxy servers (eg. nginx -> gunicorn) tend to override
+    the REMOTE_ADDR header.
+
+    This middleware translates the HTTP_X_FORWARDED_FOR header
+    back to REMOTE_ADDR for getting the end-user's IP.
+
+    To install simply add it to your middleware tuple after
+    CommonMiddleware::
+
+        MIDDLEWARE_CLASSES = (
+            ...
+            'dwtools3.django.helpers.middleware.TranslateProxyRemoteAddrMiddleware',
+        )
+    """
+    def process_request(self, request):
+        if 'HTTP_X_FORWARDED_FOR' in request.META:
+            ip = request.META['HTTP_X_FORWARDED_FOR'].split(",")[0].strip()
+            request.META['REMOTE_ADDR'] = ip
 
 
 class PerformanceStatsMiddleware(object):
@@ -23,21 +42,23 @@ class PerformanceStatsMiddleware(object):
     If you have "debug only" middleware that shouldn't be measured, place it
     before ``PerformanceStatsMiddleware``.
     """
+    STATS_KEY = '_performancestatsmiddleware'
+
     def process_request(self, request):
-        setattr(request, STATS_KEY, {
+        setattr(request, self.STATS_KEY, {
             'start': time(),
             'view_start': None,
         })
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        stats = getattr(request, STATS_KEY)
+        stats = getattr(request, self.STATS_KEY)
         stats['view_start'] = time()
         stats['middleware_db_queries'] = len(connection.queries)
         stats['middleware_db_time'] = functools.reduce(operator.add, (float(q['time']) for q in connection.queries), 0.0)
         return None
 
     def process_response(self, request, response):
-        stats = getattr(request, STATS_KEY, None)
+        stats = getattr(request, self.STATS_KEY, None)
         if stats is None or not stats['view_start']:
             return response
 
