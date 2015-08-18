@@ -2,9 +2,11 @@
 Decorators and exceptions for handling Ajax views with JSON input and output.
 """
 import json
+import time
 from functools import wraps
 from django.http.response import HttpResponseBadRequest, JsonResponse, \
     HttpResponseForbidden
+from django.utils.http import http_date
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 
@@ -22,7 +24,7 @@ class AjaxPermissionDenied(Exception):
     pass
 
 
-def ajax(methods, login_required=False):
+def ajax(methods, login_required=False, expires_in=None):
     """
     Decorator to pre- and post-process an Ajax view with JSON inputs and outputs.
 
@@ -36,6 +38,8 @@ def ajax(methods, login_required=False):
     :param str/list method: A single or list of HTTP methods supported by this endpoint.
     :param bool login_required: True is a ``request.user.is_authenticated()`` check
         should be made before the view runs.
+    :param int expires_in: If none, no caching headers are sent. If positive/negative,
+        the Expires HTTP header is set for the given number of secs forward/backward.
 
     Example::
 
@@ -72,7 +76,13 @@ def ajax(methods, login_required=False):
             except AjaxPermissionDenied as e:
                 return HttpResponseForbidden(str(e) or 'Permission denied.')
 
-            return JsonResponse(data=ret, safe=False)
+            response = JsonResponse(data=ret, safe=False)
+
+            if expires_in:
+                response['Expires'] = http_date(time.time() + expires_in)
+                response['Cache-Control'] = 'private, max-age={}'.format(expires_in)
+
+            return response
 
         return ensure_csrf_cookie(wrapper)
     return decorator
