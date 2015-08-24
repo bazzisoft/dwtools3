@@ -1,6 +1,7 @@
 """
 Decorators and exceptions for handling Ajax views with JSON input and output.
 """
+import enum
 import json
 import time
 from functools import wraps
@@ -8,6 +9,7 @@ from django.http.response import HttpResponseBadRequest, JsonResponse, \
     HttpResponseForbidden
 from django.utils.http import http_date
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 class AjaxBadRequest(Exception):
@@ -24,7 +26,7 @@ class AjaxPermissionDenied(Exception):
     pass
 
 
-def ajax(methods, login_required=False, expires_in=None):
+def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncoder):
     """
     Decorator to pre- and post-process an Ajax view with JSON inputs and outputs.
 
@@ -76,7 +78,7 @@ def ajax(methods, login_required=False, expires_in=None):
             except AjaxPermissionDenied as e:
                 return HttpResponseForbidden(str(e) or 'Permission denied.')
 
-            response = JsonResponse(data=ret, safe=False)
+            response = JsonResponse(data=ret, safe=False, encoder=encoder)
 
             if expires_in:
                 response['Expires'] = http_date(time.time() + expires_in)
@@ -86,3 +88,14 @@ def ajax(methods, login_required=False, expires_in=None):
 
         return ensure_csrf_cookie(wrapper)
     return decorator
+
+
+class DjangoJSONEncoderWithEnum(DjangoJSONEncoder):
+    """
+    JSONEncoder subclass that knows how to encode date/time and decimal types, and enums.
+    """
+    def default(self, o):
+        if isinstance(o, enum.Enum):
+            return str(o)
+        else:
+            return super().default(o)
