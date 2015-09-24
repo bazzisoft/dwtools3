@@ -1,6 +1,7 @@
 import openpyxl
 from collections import OrderedDict
 from openpyxl.utils.exceptions import InvalidFileException
+from zipfile import BadZipFile
 
 
 class ExcelReaderError(IOError):
@@ -22,6 +23,8 @@ class ExcelReader:
             self.workbook = openpyxl.load_workbook(filename_or_stream, read_only=True, data_only=True)
         except (OSError, InvalidFileException) as e:
             raise ExcelReaderError(str(e)) from e
+        except BadZipFile as e:
+            raise ExcelReaderError('Not a valid XLSX file.') from e
 
     def num_sheets(self):
         """
