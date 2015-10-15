@@ -55,7 +55,7 @@ class HTMLReportWriter(IReportWriter):
             value = rowdict.get(col.field_name, '')
             value = self.definition.formatter.format(datatype, value)
 
-            output.append('<td{}{}>{}</td>'.format(colspan, style, html.escape(value)))
+            output.append('<td{}{}>{}</td>'.format(colspan, style, html.escape(value).replace('\n', '<br>')))
 
         output.append('</tr>\n')
         self.stream.write(''.join(output))
