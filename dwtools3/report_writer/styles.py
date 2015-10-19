@@ -25,10 +25,12 @@ class Style:
     :param Align align: Horizontal alignment.
     :param VAlign valign: Vertical alignment.
     :param bool wrap_text: Whether text should wrap into multiple lines or be truncated.
+    :param int grid_color: 24-bit RBG font color for cell grid, such as ``0xFF8022``.
     """
     def __init__(self, datatype=None, colspan=None, font=None, fontsize=None,
                  bold=None, italic=None, underline=None, strike=None,
-                 color=None, bgcolor=None, align=None, valign=None, wrap_text=None):
+                 color=None, bgcolor=None, align=None, valign=None,
+                 wrap_text=None, grid_color=None):
         self._styles = {k: v for k, v in locals().items() if k != 'self' and v is not None}
         self._hash = None
 
@@ -36,7 +38,7 @@ class Style:
         s = ['Style:']
         for k in sorted(self._styles.keys()):
             v = self._styles[k]
-            if k in ('color', 'bgcolor'):
+            if k in ('color', 'bgcolor', 'grid_color'):
                 v = '0x{:06x}'.format(v)
             elif isinstance(v, bool):
                 v = 'Y' if v else 'n'

@@ -74,8 +74,8 @@ class HTMLReportWriter(IReportWriter):
         if self.full_page:
             styles.append('body { font-family: Calibri, Helvetica, Arial, sans-serif; font-size: 11pt; }')
 
-        styles.append('#{} {{ border-collapse: collapse; }}'.format(self.table_id))
-        styles.append('#{} td {{ border: 1px solid #ddd; padding: 3px 6px; {} }}'
+        styles.append('#{} {{ border-collapse: collapse;  }}'.format(self.table_id))
+        styles.append('#{} td {{ border: 1px solid #ddd; line-height: 1.3; padding: 3px 6px; {} }}'
                       .format(self.table_id, self._css_for_style(self.definition.default_style)))
 
         for col in self.definition.columns:

@@ -1,5 +1,7 @@
 from datetime import datetime
-from pyexcelerate import Workbook, Range, Style, Fill, Color, Font, Format, Alignment
+from pyexcelerate import Workbook, Style, Fill, Color, Font, Format, Alignment
+from pyexcelerate.Borders import Borders
+from pyexcelerate.Border import Border
 
 
 class ExcelStyle:
@@ -30,7 +32,8 @@ class ExcelStyle:
 
     def __init__(self, number_format=None, font=None, fontsize=None,
                  bold=None, italic=None, underline=None, strike=None,
-                 color=None, bgcolor=None, align=None, valign=None, wrap_text=None):
+                 color=None, bgcolor=None, align=None, valign=None,
+                 wrap_text=None, grid_color=None):
         self._styles = locals().copy()
         del self._styles['self']
         self._excel_style = Style()
@@ -63,6 +66,14 @@ class ExcelStyle:
         if bgcolor is not None:
             self._excel_style.fill = Fill(background=self._to_excel_color(bgcolor))
 
+        # Grid
+        if grid_color is not None:
+            if isinstance(grid_color, bool) and grid_color == False:
+                self._excel_style.borders = Borders()
+            else:
+                border = Border(color=self._to_excel_color(grid_color))
+                self._excel_style.borders = Borders(border, border, border, border)
+
         # Alignment
         align_kwargs = {}
         if align is not None:
@@ -81,7 +92,7 @@ class ExcelStyle:
             v = self._styles[k]
             if v is None:
                 continue
-            if k in ('color', 'bgcolor'):
+            if k in ('color', 'bgcolor', 'grid_color'):
                 v = '0x{:06x}'.format(v)
             elif isinstance(v, bool):
                 v = 'Y' if v else 'n'
