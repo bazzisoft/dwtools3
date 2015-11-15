@@ -132,6 +132,10 @@ class ExcelWriter:
         self._default_style = None
         self._rowcount = 0
 
+    @staticmethod
+    def content_type():
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
     def __enter__(self):
         return self
 
