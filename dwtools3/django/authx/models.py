@@ -27,7 +27,7 @@ models.options.DEFAULT_NAMES = (models.options.DEFAULT_NAMES +
 
 class AuthXUserManager(InheritanceManagerMixin, UserManager):
     """
-    Default manager for the ``AuthXAbstactUser`` subclasses.
+    Default manager for the ``AuthXAbstractUser`` subclasses.
 
     Supports ``InheritanceQuerySet``/``InheritanceManager`` functionality.
     """
@@ -57,7 +57,7 @@ class AuthXUserManager(InheritanceManagerMixin, UserManager):
         return user
 
 
-class AuthXAbstactUser(AbstractBaseUser, PermissionsMixin):
+class AuthXAbstractUser(AbstractBaseUser, PermissionsMixin):
     """
     Base class for user models supporting emails as usernames
     and optional email verification.
