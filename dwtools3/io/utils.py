@@ -1,5 +1,6 @@
 import sys
 import codecs
+import pprint
 
 
 def create_console_string_writer(stream=None, encoding='utf-8'):
@@ -12,3 +13,10 @@ def create_console_string_writer(stream=None, encoding='utf-8'):
     """
     stream = stream or sys.stdout
     return codecs.getwriter(encoding)(stream.buffer)
+
+
+def pprint_unicode_to_console(s, end='\n'):
+    writer = create_console_string_writer()
+    writer.write(pprint.pformat(s, indent=2))
+    if end:
+        writer.write(end)
