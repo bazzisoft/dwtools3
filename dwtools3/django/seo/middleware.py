@@ -22,7 +22,6 @@ class SEORedirectMiddleware(object):
         if r.with_query_string:
             qs = request.META.get('QUERY_STRING', '')
             if qs:
-                print(qs)
                 to = '{}?{}'.format(to, qs)
 
         return redirect(to, **kwargs)
