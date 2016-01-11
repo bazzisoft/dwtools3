@@ -223,6 +223,26 @@ def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_cond
             raise ValidationError({error_field: [error_message]})
 
 
+def check_exactly_one_field_is_not_none(model_instance, fields, error_message=None):
+    """
+    Checks the given model instance has exactly one of `fields` set to a non-None value.
+
+    ``error_message`` specified the error to display of the unique check fails.
+    If ``None``, one is automatically created.
+
+    Eg.::
+
+        def clean():
+            check_exactly_one_field_is_not_none(self, ('fkey1', 'fkey2'))
+    """
+    non_none = [1 for f in fields if getattr(model_instance, f) is not None]
+    if len(non_none) != 1:
+        if not error_message:
+            field_str = ', '.join(fields[:-1]) + ' and ' + fields[-1]
+            error_message = _('Exactly one of {} must be specified.').format(field_str)
+        raise ValidationError(error_message)
+
+
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None, slug_separator='-'):
     """
     Automatically create a unique slug for a model.
