@@ -77,5 +77,3 @@ class Redirect(models.Model):
 
     def clean(self):
         _clean_url_field(self, 'url')
-        if self.with_query_string:
-            _clean_url_field(self, 'target_url')

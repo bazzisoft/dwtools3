@@ -1,5 +1,6 @@
-from .models import Redirect, normalize_url
 from django.shortcuts import redirect
+from ...http import modify_url_query_string
+from .models import Redirect, normalize_url
 
 
 class SEORedirectMiddleware(object):
@@ -20,8 +21,6 @@ class SEORedirectMiddleware(object):
         kwargs = dict(permanent=r.is_permanent)
 
         if r.with_query_string:
-            qs = request.META.get('QUERY_STRING', '')
-            if qs:
-                to = '{}?{}'.format(to, qs)
+            to = modify_url_query_string(to, replace=request.GET.dict())
 
         return redirect(to, **kwargs)
