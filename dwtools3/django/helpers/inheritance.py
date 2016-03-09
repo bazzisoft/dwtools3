@@ -63,7 +63,10 @@ class InheritanceQuerySetMixin(object):
         for name in ['subclasses', '_annotated']:
             if hasattr(self, name):
                 kwargs[name] = getattr(self, name)
-        return super(InheritanceQuerySetMixin, self)._clone(klass, setup, **kwargs)
+        if django.VERSION < (1, 9):
+            kwargs['klass'] = klass
+            kwargs['setup'] = setup
+        return super(InheritanceQuerySetMixin, self)._clone(**kwargs)
 
     def annotate(self, *args, **kwargs):
         qset = super(InheritanceQuerySetMixin, self).annotate(*args, **kwargs)
@@ -117,7 +120,8 @@ class InheritanceQuerySetMixin(object):
             if levels or levels is None:
                 for subclass in self._get_subclasses_recurse(
                         rel.field.model, levels=levels):
-                    subclasses.append(rel.get_accessor_name() + LOOKUP_SEP + subclass)
+                    subclasses.append(
+                        rel.get_accessor_name() + LOOKUP_SEP + subclass)
             subclasses.append(rel.get_accessor_name())
         return subclasses
 
@@ -128,20 +132,25 @@ class InheritanceQuerySetMixin(object):
         select_related string backwards.
         """
         if not issubclass(model, self.model):
-            raise ValueError("%r is not a subclass of %r" % (model, self.model))
+            raise ValueError(
+                "%r is not a subclass of %r" % (model, self.model))
 
         ancestry = []
         # should be a OneToOneField or None
-        parent = model._meta.get_ancestor_link(self.model)
+        parent_link = model._meta.get_ancestor_link(self.model)
         if levels:
             levels -= 1
-        while parent is not None:
-            ancestry.insert(0, parent.related.get_accessor_name())
+        while parent_link is not None:
+            ancestry.insert(0, parent_link.related.get_accessor_name())
             if levels or levels is None:
-                parent = parent.related.parent_model._meta.get_ancestor_link(
+                if django.VERSION < (1, 8):
+                    parent_model = parent_link.related.parent_model
+                else:
+                    parent_model = parent_link.related.model
+                parent_link = parent_model._meta.get_ancestor_link(
                     self.model)
             else:
-                parent = None
+                parent_link = None
         return LOOKUP_SEP.join(ancestry)
 
     def _get_sub_obj_recurse(self, obj, s):
@@ -287,90 +296,3 @@ class QueryManagerMixin(object):
 
 class QueryManager(QueryManagerMixin, models.Manager):
     pass
-
-
-class PassThroughManagerMixin(object):
-    """
-    A mixin that enables you to call custom QuerySet methods from your manager.
-    """
-
-    # pickling causes recursion errors
-    _deny_methods = ['__getstate__', '__setstate__', '__getinitargs__',
-                     '__getnewargs__', '__copy__', '__deepcopy__', '_db',
-                     '__slots__']
-
-    def __init__(self, queryset_cls=None):
-        self._queryset_cls = queryset_cls
-        super(PassThroughManagerMixin, self).__init__()
-
-    def __getattr__(self, name):
-        if name in self._deny_methods:
-            raise AttributeError(name)
-        if django.VERSION < (1, 6, 0):
-            return getattr(self.get_query_set(), name)
-        return getattr(self.get_queryset(), name)
-
-    def __dir__(self):
-        """
-        Allow introspection via dir() and ipythonesque tab-discovery.
-
-        We do dir(type(self)) because to do dir(self) would be a recursion
-        error.
-        We call dir(self.get_query_set()) because it is possible that the
-        queryset returned by get_query_set() is interesting, even if
-        self._queryset_cls is None.
-        """
-        my_values = frozenset(dir(type(self)))
-        my_values |= frozenset(dir(self.get_query_set()))
-        return list(my_values)
-
-    def get_queryset(self):
-        try:
-            qs = super(PassThroughManagerMixin, self).get_queryset()
-        except AttributeError:
-            qs = super(PassThroughManagerMixin, self).get_query_set()
-        if self._queryset_cls is not None:
-            qs = qs._clone(klass=self._queryset_cls)
-        return qs
-
-    get_query_set = get_queryset
-
-    @classmethod
-    def for_queryset_class(cls, queryset_cls):
-        return create_pass_through_manager_for_queryset_class(cls, queryset_cls)
-
-
-class PassThroughManager(PassThroughManagerMixin, models.Manager):
-    """
-    Inherit from this Manager to enable you to call any methods from your
-    custom QuerySet class from your manager. Simply define your QuerySet
-    class, and return an instance of it from your manager's `get_queryset`
-    method.
-
-    Alternately, if you don't need any extra methods on your manager that
-    aren't on your QuerySet, then just pass your QuerySet class to the
-    ``for_queryset_class`` class method.
-
-    class PostQuerySet(QuerySet):
-        def enabled(self):
-            return self.filter(disabled=False)
-
-    class Post(models.Model):
-        objects = PassThroughManager.for_queryset_class(PostQuerySet)()
-
-    """
-    pass
-
-
-def create_pass_through_manager_for_queryset_class(base, queryset_cls):
-    class _PassThroughManager(base):
-        def __init__(self, *args, **kwargs):
-            return super(_PassThroughManager, self).__init__(*args, **kwargs)
-
-        def get_queryset(self):
-            qs = super(_PassThroughManager, self).get_queryset()
-            return qs._clone(klass=queryset_cls)
-
-        get_query_set = get_queryset
-
-    return _PassThroughManager

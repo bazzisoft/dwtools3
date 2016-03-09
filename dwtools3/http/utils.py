@@ -5,7 +5,7 @@ from .urlparser import URLParser
 
 
 _DEFAULT_SALT = 'F^u#?8idmR7G8~b=736cGnN3xz49YK=gpHu9n9?F8Ki?pG6J'
-_SIGNED_URL_RE = re.compile(r'^(.*)[\?\&]sig=(\w+)&expiry=(\d+)$')
+_SIGNED_URL_RE = re.compile(r'^(.*)[\?\&]sig=(\w+)&expiry=(\d+)')
 
 
 def modify_url_query_string(url=None, replace=None, delete=None):
