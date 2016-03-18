@@ -33,6 +33,15 @@ class ExcelReportWriter(IReportWriter):
         styledict = self._resolve_row_styles(styledict, rowstyle)
         self.writer.writerow(rowdict, styledict)
 
+    def merge_cells(self, from_cell, to_cell):
+        self.writer.merge_cells(from_cell, to_cell)
+
+    def add_pane(self, x, y, freeze):
+        self.writer.add_pane(x, y, freeze)
+
+    def num_rows(self):
+        return self.writer.num_rows()
+
     def close(self, exception_was_raised=False):
         if not exception_was_raised:
             self.writer.close()

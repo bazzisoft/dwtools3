@@ -1,5 +1,5 @@
 from datetime import datetime
-from pyexcelerate import Workbook, Style, Fill, Color, Font, Format, Alignment
+from pyexcelerate import Workbook, Style, Fill, Color, Font, Format, Alignment, Panes
 from pyexcelerate.Borders import Borders
 from pyexcelerate.Border import Border
 
@@ -237,6 +237,15 @@ class ExcelWriter:
         """
         for row in rows:
             self.writerow(row)
+
+    def merge_cells(self, from_cell, to_cell):
+        self._sheet.range(from_cell, to_cell).merge()
+
+    def add_pane(self, x, y, freeze):
+        self._sheet.panes = Panes(x=x, y=y, freeze=freeze)
+
+    def num_rows(self):
+        return self._sheet.num_rows
 
     def close(self):
         """
