@@ -46,6 +46,12 @@ class IReportWriter:
         for rowdict in rowdicts:
             self.writerow(rowdict, rowstyle=rowstyle)
 
+    def freeze_pane(self, col_idx=None, row_idx=None):
+        """
+        Freezes the specified column and/or row panes if supported.
+        """
+        pass
+
     def close(self, exception_was_raised=False):
         """
         Writes out any footer data and closes the writer. Called automatically

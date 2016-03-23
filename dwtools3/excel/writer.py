@@ -238,14 +238,11 @@ class ExcelWriter:
         for row in rows:
             self.writerow(row)
 
-    def merge_cells(self, from_cell, to_cell):
-        self._sheet.range(from_cell, to_cell).merge()
-
-    def add_pane(self, x, y, freeze):
-        self._sheet.panes = Panes(x=x, y=y, freeze=freeze)
-
-    def num_rows(self):
-        return self._sheet.num_rows
+    def freeze_pane(self, col_idx=None, row_idx=None):
+        """
+        Freezes the specified column and/or row panes.
+        """
+        self._sheet.panes = Panes(x=col_idx, y=row_idx, freeze=True)
 
     def close(self):
         """
