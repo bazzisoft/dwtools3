@@ -33,7 +33,7 @@ class ExcelStyle:
     def __init__(self, number_format=None, font=None, fontsize=None,
                  bold=None, italic=None, underline=None, strike=None,
                  color=None, bgcolor=None, align=None, valign=None,
-                 wrap_text=None, grid_color=None):
+                 wrap_text=None, grid_color=None, colspan=None):
         self._styles = locals().copy()
         del self._styles['self']
         self._excel_style = Style()
@@ -101,6 +101,10 @@ class ExcelStyle:
 
     def __repr__(self):
         return str(self)
+
+    @property
+    def colspan(self):
+        return self._styles['colspan']
 
     def copy(self, **kwargs):
         """
@@ -207,12 +211,16 @@ class ExcelWriter:
         i = self._rowcount
 
         if isinstance(style, ExcelStyle):
+            merges = [style.colspan] * len(rowdata)
             style = [style.get_excel_style()] * len(rowdata)
         elif style is not None:
+            merges = [s.colspan if s is not None else None for s in style]
             style = [s.get_excel_style() if s is not None else None for s in style]
         elif self._default_style is not None:
+            merges = ()
             style = [self._default_style.get_excel_style()] * len(rowdata)
         else:
+            merges = ()
             style = ()
 
         for j, val in enumerate(rowdata):
@@ -230,6 +238,10 @@ class ExcelWriter:
             self._sheet.set_cell_value(i, j + 1, val)
             if val is not None and j < len(style) and style[j] is not None:
                 self._sheet.set_cell_style(i, j + 1, style[j])
+
+            # Merge any cells to effect "colspan"
+            if val is not None and j < len(merges) and merges[j] is not None:
+                self._sheet.range((i, j + 1), (i, j + merges[j])).merge()
 
     def writerows(self, rows):
         """

@@ -62,7 +62,6 @@ class ExcelReportWriter(IReportWriter):
 
         kwargs = style.get_style_dict().copy()
         datatype = kwargs.pop('datatype', None)
-        colspan = kwargs.pop('colspan', None)
         if 'align' in kwargs:
             kwargs['align'] = kwargs['align'].value
         if 'valign' in kwargs:
