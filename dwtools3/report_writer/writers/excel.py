@@ -17,7 +17,7 @@ class ExcelReportWriter(IReportWriter):
     """
     def __init__(self, definition, stream, close_stream):
         super().__init__(definition, stream, close_stream)
-        self.writer = ExcelDictWriter(stream, self.definition.list_fields())
+        self.writer = ExcelDictWriter(stream, self.definition.list_fields(exclude_datatypes=(DataType.HTML,)))
         self.style_cache = {}
         self.format_cache = {d: self._create_excel_number_format(d) for d in DataType}
         self.column_styles = {c.field_name: Style.combine(self.definition.default_style, c.colstyle)

@@ -95,8 +95,9 @@ class ReportDefinition:
         else:
             assert False, 'Invalid output type {}'.format(output_type)
 
-    def list_fields(self):
+    def list_fields(self, exclude_datatypes=None):
         """
         Returns a list of all column field names defined.
         """
-        return [c.field_name for c in self.columns]
+        exclude_datatypes = set(exclude_datatypes) if exclude_datatypes else set()
+        return [c.field_name for c in self.columns if c.colstyle.get_datatype() not in exclude_datatypes]

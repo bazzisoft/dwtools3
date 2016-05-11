@@ -1,5 +1,6 @@
 import csv
 from .base import IReportWriter
+from ..enums import DataType
 
 
 class CSVReportWriter(IReportWriter):
@@ -13,7 +14,7 @@ class CSVReportWriter(IReportWriter):
     """
     def __init__(self, definition, stream, close_stream):
         super().__init__(definition, stream, close_stream)
-        self.writer = csv.DictWriter(stream, fieldnames=self.definition.list_fields(), extrasaction='ignore')
+        self.writer = csv.DictWriter(stream, fieldnames=self.definition.list_fields(exclude_datatypes=(DataType.HTML,)), extrasaction='ignore')
 
     def writerow(self, rowdict, styledict=None, rowstyle=None):
         output = {}

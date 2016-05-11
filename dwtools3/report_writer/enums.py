@@ -28,6 +28,7 @@ class DataType(Enum):
     FLOAT = 'format_float'
     PERCENTAGE = 'format_percentage'
     CURRENCY = 'format_currency'
+    HTML = 'format_html'
 
 
 class Align(Enum):

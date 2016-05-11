@@ -47,6 +47,9 @@ class IFormatter:
     def format_currency(self, v):
         raise NotImplementedError
 
+    def format_html(self, v):
+        return v
+
 
 class DefaultFormatter(IFormatter):
     """

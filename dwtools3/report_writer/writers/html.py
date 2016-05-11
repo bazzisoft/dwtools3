@@ -1,6 +1,7 @@
 import html
 import uuid
 from .base import IReportWriter
+from ..enums import DataType
 
 
 class HTMLReportWriter(IReportWriter):
@@ -54,8 +55,9 @@ class HTMLReportWriter(IReportWriter):
             datatype = self._determine_datatype(cellstyle, rowstyle, col.colstyle)
             value = rowdict.get(col.field_name, '')
             value = self.definition.formatter.format(datatype, value)
+            value = html.escape(value).replace('\n', '<br>') if datatype != DataType.HTML else value
 
-            output.append('<td{}{}>{}</td>'.format(colspan, style, html.escape(value).replace('\n', '<br>')))
+            output.append('<td{}{}>{}</td>'.format(colspan, style, value))
 
         output.append('</tr>\n')
         self.stream.write(''.join(output))
