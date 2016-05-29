@@ -15,7 +15,8 @@ def send_email(user_or_to,
                subject=None, body=None,
                template_prefix=None, vars=None,
                cc=None, bcc=None, frm=None,
-               attachments=None, headers=None):
+               attachments=None, headers=None,
+               as_html=True):
     """
     Supports sending a HTML email rendered from templates
     from ``settings.DEFAULT_FROM_EMAIL`` to ``user_or_to``.
@@ -38,6 +39,8 @@ def send_email(user_or_to,
     ``attachments`` is a list of 3-tuples (filename, content, mimetype).
 
     ``headers`` is a dict of additional mail headers to set.
+
+    ``as_html`` indicates whether to send a HTML or plain text email.
     """
     vars = vars or {}
 
@@ -72,24 +75,26 @@ def send_email(user_or_to,
         body = Template(body).render(context)
 
     messages.send_mail(subject, body, to, cc=cc, bcc=bcc, frm=frm,
-                       attachments=attachments, headers=headers, as_html=True)
+                       attachments=attachments, headers=headers, as_html=as_html)
 
 
 def send_email_to_admins(subject=None, body=None,
                          template_prefix=None, vars=None,
                          cc=None, bcc=None, frm=None,
-                         attachments=None, headers=None):
+                         attachments=None, headers=None,
+                         as_html=True):
     """
     Send an email template to the site admins.
     """
-    send_email(settings.ADMINS, subject, body, template_prefix, vars, cc, bcc, frm, attachments, headers)
+    send_email(settings.ADMINS, subject, body, template_prefix, vars, cc, bcc, frm, attachments, headers, as_html)
 
 
 def send_email_to_managers(subject=None, body=None,
                            template_prefix=None, vars=None,
                            cc=None, bcc=None, frm=None,
-                           attachments=None, headers=None):
+                           attachments=None, headers=None,
+                           as_html=True):
     """
     Send an email template to the site managers.
     """
-    send_email(settings.MANAGERS, subject, body, template_prefix, vars, cc, bcc, frm, attachments, headers)
+    send_email(settings.MANAGERS, subject, body, template_prefix, vars, cc, bcc, frm, attachments, headers, as_html)
