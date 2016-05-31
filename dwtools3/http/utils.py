@@ -21,12 +21,12 @@ def modify_url_query_string(url=None, replace=None, delete=None):
     """
     parser = URLParser(url=url)
 
-    if replace is not None:
-        parser.query.update(replace)
-
     if delete is not None:
         for k in delete:
             parser.query.pop(k, '')
+
+    if replace is not None:
+        parser.query.update(replace)
 
     return parser.build_url()
 
