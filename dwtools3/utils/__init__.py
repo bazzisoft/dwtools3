@@ -27,7 +27,7 @@ def extract_object_id(model_cls, object_or_id, allow_none=False):
 
     try:
         return int(object_or_id)
-    except ValueError:
+    except (TypeError, ValueError):
         assert False, '{} is not a numeric ID or {} instance'.format(object_or_id, model_cls.__class__.__name__)
 
 
@@ -46,7 +46,7 @@ def extract_object(model_cls, object_or_id, allow_none=False, queryset=None):
 
     try:
         id = int(object_or_id)
-    except ValueError:
+    except (TypeError, ValueError):
         assert False, '{} is not a numeric ID or {} instance'.format(object_or_id, model_cls.__class__.__name__)
 
     if queryset is not None:
