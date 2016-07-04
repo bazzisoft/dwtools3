@@ -77,6 +77,9 @@ class SeparatedValuesField(models.TextField):
     def get_prep_value(self, value):
         return self.delimiter.join(value)
 
+    def value_to_string(self, obj):
+        return self.get_prep_value(self.value_from_object(obj))
+
     def validate(self, value, model_instance):
         """
         Validates value and throws ValidationError. Subclasses should override
