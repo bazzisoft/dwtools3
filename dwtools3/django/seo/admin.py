@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import models
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 from django.utils.html import escape
@@ -49,3 +50,7 @@ class RedirectAdmin(admin.ModelAdmin):
     list_display_links = ('url',)
     search_fields = ('url', 'target_url',)
     ordering = ('url',)
+
+    formfield_overrides = {
+        models.TextField: {'widget': admin.widgets.AdminTextInputWidget}
+    }

@@ -59,7 +59,7 @@ class MetaTags(models.Model):
 
 class Redirect(models.Model):
     url = models.CharField('URL', max_length=255, unique=True)
-    target_url = models.CharField(max_length=255, blank=False)
+    target_url = models.TextField(blank=False)
     is_permanent = models.BooleanField(default=False,
                                        help_text='Whether to use a 301 Permanent '
                                                  'redirect for this entry.')
