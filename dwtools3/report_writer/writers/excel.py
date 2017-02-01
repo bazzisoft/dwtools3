@@ -17,7 +17,7 @@ class ExcelReportWriter(IReportWriter):
     """
     def __init__(self, definition, stream, close_stream):
         super().__init__(definition, stream, close_stream)
-        self.writer = ExcelDictWriter(stream, self.definition.list_fields(exclude_datatypes=(DataType.HTML,)))
+        self.writer = ExcelDictWriter(stream, self.definition.list_fields(exclude_datatypes=self.list_excluded_datatypes()))
         self.style_cache = {}
         self.format_cache = {d: self._create_excel_number_format(d) for d in DataType}
         self.column_styles = {c.field_name: Style.combine(self.definition.default_style, c.colstyle)
@@ -28,6 +28,9 @@ class ExcelReportWriter(IReportWriter):
         for column in self.definition.columns:
             if column.width is not None:
                 self.writer.set_column_style(column.index, width=column.width)
+
+    def list_excluded_datatypes(self):
+        return (DataType.HTML,)
 
     def writerow(self, rowdict, styledict=None, rowstyle=None):
         styledict = self._resolve_row_styles(styledict, rowstyle)

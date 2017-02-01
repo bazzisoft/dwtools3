@@ -19,6 +19,9 @@ class IReportWriter:
     def __exit__(self, exc_type, exc_value, traceback):
         self.close(exc_type is not None)
 
+    def list_excluded_datatypes(self):
+        return ()
+
     def writeheader(self, styledict=None, rowstyle=None):
         """
         Write out a header row with the column labels or field names.

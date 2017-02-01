@@ -14,7 +14,10 @@ class CSVReportWriter(IReportWriter):
     """
     def __init__(self, definition, stream, close_stream):
         super().__init__(definition, stream, close_stream)
-        self.writer = csv.DictWriter(stream, fieldnames=self.definition.list_fields(exclude_datatypes=(DataType.HTML,)), extrasaction='ignore')
+        self.writer = csv.DictWriter(stream, fieldnames=self.definition.list_fields(exclude_datatypes=self.list_excluded_datatypes()), extrasaction='ignore')
+
+    def list_excluded_datatypes(self):
+        return (DataType.HTML,)
 
     def writerow(self, rowdict, styledict=None, rowstyle=None):
         output = {}

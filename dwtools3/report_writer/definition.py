@@ -101,3 +101,9 @@ class ReportDefinition:
         """
         exclude_datatypes = set(exclude_datatypes) if exclude_datatypes else set()
         return [c.field_name for c in self.columns if c.colstyle.get_datatype() not in exclude_datatypes]
+
+    def list_fields_for_writer(self, writer):
+        """
+        Returns a list of all column field names visible for the specified writer.
+        """
+        return self.list_fields(exclude_datatypes=writer.list_excluded_datatypes())
