@@ -132,7 +132,10 @@ class ExcelWriter:
     def __init__(self, filename_or_stream, sheet_name='Sheet1'):
         self._stream = filename_or_stream
         self._workbook = Workbook()
-        self._sheet = self._workbook.new_sheet(sheet_name)
+
+        if sheet_name is not None:
+            self._sheet = self._workbook.new_sheet(sheet_name)
+
         self._default_style = None
         self._rowcount = 0
 
@@ -146,6 +149,10 @@ class ExcelWriter:
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             self.close()
+
+    def add_sheet(self, sheet_name):
+        self._sheet = self._workbook.new_sheet(sheet_name)
+        self._rowcount = 0
 
     def set_default_style(self, style):
         """
