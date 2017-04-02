@@ -12,5 +12,6 @@ pip install autopep8
 pip install pylint
 pip install openpyxl
 pip install PyExcelerate
+pip install pypiwin32
 
 pause
