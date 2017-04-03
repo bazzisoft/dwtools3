@@ -31,3 +31,7 @@ EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
 
 def datetime_to_unix_timestamp(dt):
     return (dt - EPOCH).total_seconds()
+
+
+def unix_timestamp_to_datetime(timestamp):
+    return datetime.fromtimestamp(timestamp, UTC)
