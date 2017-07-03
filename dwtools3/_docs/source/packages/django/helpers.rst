@@ -45,3 +45,10 @@ Middleware
 
 .. automodule:: dwtools3.django.helpers.middleware
    :members:
+
+   
+Logging
+-------
+
+.. automodule:: dwtools3.django.helpers.log
+   :members:
