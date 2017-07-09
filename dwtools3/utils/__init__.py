@@ -12,8 +12,11 @@ def listify(param):
     """
     Converts the parameter to a list. If it's an iterable, converts it to a list.
     If it's a string, bytes or object, returns a 1-element listing containing it.
+    If it's None, returns an empty list.
     """
-    if isinstance(param, Iterable) and not isinstance(param, (str, bytes)):
+    if param is None:
+        return []
+    elif isinstance(param, Iterable) and not isinstance(param, (str, bytes)):
         return list(param)
     else:
         return [param]
