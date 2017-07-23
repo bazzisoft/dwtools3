@@ -117,12 +117,16 @@ def run_sync_function(item):
 
     params = item.params
 
-    logger.info('Salesforce: Running function %s()',
-                item.function)
-
-    if isinstance(params, (list, tuple)):
-        func(*params)
-    elif isinstance(params, dict):
-        func(**params)
+    if not SalesforceSettings.SALESFORCE_ENABLED:
+        logger.info('MOCKING: Salesforce: Running function %s(%s)',
+                    item.function, repr(item.params))
     else:
-        func(params)
+        logger.info('Salesforce: Running function %s()',
+                    item.function)
+
+        if isinstance(params, (list, tuple)):
+            func(*params)
+        elif isinstance(params, dict):
+            func(**params)
+        else:
+            func(params)
