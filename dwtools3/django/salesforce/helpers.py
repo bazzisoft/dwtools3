@@ -14,6 +14,16 @@ def _resolve_sf_obj(name_or_obj):
         return name_or_obj
 
 
+def get_by_id(sf_obj, id):
+    sf_obj = _resolve_sf_obj(sf_obj)
+    logger.info('Salesforce: %s.get_by_id(%s)', sf_obj.name, id)
+
+    try:
+        return sf_obj.get(id)
+    except SalesforceResourceNotFound:
+        return None
+
+
 def get_by_external_id(sf_obj, external_id, *, external_id_field=None):
     """
     Retrieves an arbitrary salesforce object by its external ID.
