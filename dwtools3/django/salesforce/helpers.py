@@ -1,7 +1,7 @@
 import functools
 import operator
 
-from simple_salesforce.api import SalesforceResourceNotFound
+from simple_salesforce import SalesforceResourceNotFound
 
 from .api import logger, sf
 from .settings import SalesforceSettings
