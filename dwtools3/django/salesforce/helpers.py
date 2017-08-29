@@ -7,11 +7,36 @@ from .api import logger, sf
 from .settings import SalesforceSettings
 
 
+_STRING_ESCAPE_MAP = str.maketrans({
+    '\n': '\\n',
+    '\r': '\\r',
+    '\t': '\\t',
+    '\b': '\\b',
+    '\f': '\\f',
+    '"': '\\"',
+    "'": "\\'",
+    '\\': '\\\\',
+})
+
+_LIKE_ESCAPE_MAP = str.maketrans({
+    '_': '\\_',
+    '%': '\\%',
+})
+
+
 def _resolve_sf_obj(name_or_obj):
     if isinstance(name_or_obj, str):
         return getattr(sf, name_or_obj)
     else:
         return name_or_obj
+
+
+def escape(s):
+    return s.translate(_STRING_ESCAPE_MAP)
+
+
+def escape_for_like(s):
+    return escape(s).translate(_LIKE_ESCAPE_MAP)
 
 
 def get_by_id(sf_obj, id):
