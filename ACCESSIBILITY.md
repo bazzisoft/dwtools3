@@ -7,6 +7,8 @@ Website
 
 - Main landmarks (eg. `<header>`, `<footer>`, `<main>`, `<nav>`) and other main navigational elements should have `aria-label` or `aria-labelledby` defined to indicate what they represent.
 
+- Use `aria-live` regions for dynamically updated content. Set a `<div>` or other element to `role="region|status|log|alert|progressbar"` and set `aria-live="polite|assertive"` (prefer polite!). Ensure this `div` always remains in the DOM. The screen reader should then read updates when the content inside changes.
+ 
 
 Images
 ------
@@ -15,6 +17,8 @@ Images
 - Avoid images where possible (excepting photos), they are a often source of contrast issues.
 
 - Avoid placing text over images/photos.
+
+- Avoid animated/flickering images as they may affect epilepsy & ADD users.
 
 
 Keyboard Navigation
@@ -44,7 +48,13 @@ Buttons & Links
 
 - Links which behave as buttons should have `role="button"`.
 
-- Links should not be "doubled" else they will be read twice.
+- Links should not be "doubled" else they will be read twice. If you have an image link then a text link pointing to the same place, set `tabindex="-1"` on the image link to skip it. 
+
+- Toggle buttons should have `role="button"` and `aria-pressed="true|false"` as appropriate.
+
+- Simulated checkboxes should have `role="checkbox"` and  `aria-pressed="true|false|mixed"` as appropriate.
+
+- Group related links inside a `<nav>` element with an `aria-label` to indicate its purpose.
 
 
 Tabs & Dropdowns
@@ -76,6 +86,8 @@ Forms
     - Focus the first form field containing the error, or at minimum the first form field. May require a delay.
     
     - Each invalid form field input should contain `aria-invalid="true"` as well as `aria-describedby` pointing to the element containing the error message.     
+
+- If you have a group of radio buttons or checkboxes with a common label, wrap them and the label in a `<fieldset>` element and use either a `<legend>` element around the label or `aria-label` / `aria-labelledby` on the `<fieldset>` pointing to the label. 
 
 
 Global Alerts/Success/Error Messages
