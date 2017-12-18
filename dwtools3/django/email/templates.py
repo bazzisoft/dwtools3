@@ -1,9 +1,10 @@
 import re
+
 from django.conf import settings
-from django.template import loader, Template
-from django.template.context import Context
-from .settings import EmailSettings
+
 from . import messages
+from ..helpers.view_helpers import render_template_to_string
+from .settings import EmailSettings
 
 
 CONDENSE_WHITESPACE_RE = re.compile(r'\s+')
@@ -60,19 +61,13 @@ def send_email(user_or_to,
     else:
         to = user_or_to
 
-    context = Context(vars)
-    if template_prefix:
-        subject = loader.render_to_string(template_prefix + '.subject.txt', context_instance=context)
-    else:
-        subject = Template(subject).render(context)
-
+    kwargs = {'template': template_prefix + '.subject.txt'} if template_prefix else {'template_string': subject}
+    subject = render_template_to_string(vars=vars, **kwargs)
     subject = CONDENSE_WHITESPACE_RE.sub(' ', subject).strip()
-    context.update({'SUBJECT': subject})
+    vars.update({'SUBJECT': subject})
 
-    if template_prefix:
-        body = loader.render_to_string(template_prefix + '.body.html', context_instance=context)
-    else:
-        body = Template(body).render(context)
+    kwargs = {'template': template_prefix + '.body.html'} if template_prefix else {'template_string': body}
+    body = render_template_to_string(vars=vars, **kwargs)
 
     messages.send_mail(subject, body, to, cc=cc, bcc=bcc, frm=frm,
                        attachments=attachments, headers=headers, as_html=as_html)

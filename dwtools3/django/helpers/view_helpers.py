@@ -2,7 +2,41 @@
 Helper functions for views.
 """
 from functools import wraps
+import operator
+
 from django.contrib.auth.decorators import user_passes_test
+from django.template import loader, engines
+from django.template.base import TemplateSyntaxError
+
+
+def render_template_to_string(template=None, vars=None, request=None, template_string=None):
+    """
+    Renders a template file or template string to a rendered string.
+
+    :param str template: The path & name of the template to render.
+    :param dict vars: Extra template variables to push onto the context.
+    :param HttpRequest request: The request object. May be None to exclude request context.
+    :param str template: String content to use as the template.
+    """
+    assert operator.xor(bool(template), bool(template_string)), \
+            'Exactly one of template or template_string must be specified.'
+
+    if template_string:
+        chain = []
+        for engine in engines.all():
+            try:
+                template_obj = engine.from_string(template_string)
+            except TemplateSyntaxError as e:
+                chain.append(e)
+
+        if chain:
+            raise TemplateSyntaxError(template_string, chain=chain)
+
+        output = template_obj.render(vars, request)
+    else:
+        output = loader.render_to_string(template, vars, request=request)
+
+    return output
 
 
 def validate_form(request, form_cls, initial=None, instance=None, condition=True, **extra_kwargs):

@@ -3,12 +3,14 @@ from ...http import modify_url_query_string
 from .models import Redirect, normalize_url
 
 
-class SEORedirectMiddleware(object):
+def SEORedirectMiddleware(get_response):
     """
     Intercepts 404 errors and checks the database for any defined
     redirecs that match the current request path.
     """
-    def process_response(self, request, response):
+    def middleware(request):
+        response = get_response(request)
+
         if response.status_code != 404:
             return response
 
@@ -24,3 +26,5 @@ class SEORedirectMiddleware(object):
             to = modify_url_query_string(to, replace=request.GET.dict())
 
         return redirect(to, **kwargs)
+
+    return middleware

@@ -7,7 +7,7 @@ call venv\Scripts\activate.bat
 
 pip install sphinx
 pip install sphinx-rtd-theme
-pip install "django>=1.8,<1.9"
+pip install "django>=1.11,<1.12"
 pip install pep8
 pip install autopep8
 pip install pylint

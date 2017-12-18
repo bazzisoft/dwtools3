@@ -35,9 +35,9 @@ Installation
       on ``&u=username&p=password`` present in the URL), add this to
       your middleware::
 
-        MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
+        MIDDLEWARE = MIDDLEWARE + [
             'dwtools3.django.authx.middleware.AuthXQueryStringLoginMiddleware',
-        )
+        ]
 
     - Add the following settings for ``django.contrib.auth``::
 

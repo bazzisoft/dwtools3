@@ -8,14 +8,14 @@ Installation
 ------------
 Django settings::
 
-    INSTALLED_APPS = (
+    INSTALLED_APPS = [
         'dwtools3.django.seo',
-    )
+    ]
 
     # If you wish to use the dynamic redirects functionality
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = [
         'dwtools3.django.seo.middleware.SEORedirectMiddleware',
-    )
+    ]
 
     # If you wish to use the dynamic meta tags functionality
     TEMPLATES = [
@@ -86,7 +86,6 @@ You may then do the following::
 
     def list_ops(self, obj):
         seo_url = get_seo_metatags_admin_url(obj.get_absolute_url())
-        return '''-&nbsp;<a href="{}">SEO</a><br />'''.format(seo_url)
+        return mark_safe('''-&nbsp;<a href="{}">SEO</a><br />'''.format(seo_url))
     list_ops.short_description = ''
-    list_ops.allow_tags = True
 """

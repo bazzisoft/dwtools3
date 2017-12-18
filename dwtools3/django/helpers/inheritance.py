@@ -1,25 +1,66 @@
 """
-See <https://django-model-utils.readthedocs.org/en/latest/managers.html>
+Provides a queryset and model manager to ease working with model
+inheritance.
+
+Borrowed from: http://pypi.python.org/pypi/django-model-utils/
+
+See: https://django-model-utils.readthedocs.io/en/latest/managers.html#inheritancemanager
+
+Code: https://github.com/jazzband/django-model-utils/blob/master/model_utils/managers.py
 """
-#-----------------------------------------------------------------------------
-# Borrowed from: https://pypi.python.org/pypi/django-model-utils/
-#-----------------------------------------------------------------------------
 from __future__ import unicode_literals
 import django
 from django.db import models
-from django.db.models.fields.related import OneToOneField
+from django.db.models.fields.related import OneToOneField, OneToOneRel
 from django.db.models.query import QuerySet
+try:
+    from django.db.models.query import BaseIterable, ModelIterable
+except ImportError:
+    # Django 1.8 does not have iterable classes
+    BaseIterable = object
 from django.core.exceptions import ObjectDoesNotExist
 
-try:
-    from django.db.models.constants import LOOKUP_SEP
-    from django.utils.six import string_types
-except ImportError:  # Django < 1.5
-    from django.db.models.sql.constants import LOOKUP_SEP
-    string_types = (basestring,)
+from django.db.models.constants import LOOKUP_SEP
+from django.utils.six import string_types
+
+
+class InheritanceIterable(BaseIterable):
+    def __iter__(self):
+        queryset = self.queryset
+        iter = ModelIterable(queryset)
+        if getattr(queryset, 'subclasses', False):
+            extras = tuple(queryset.query.extra.keys())
+            # sort the subclass names longest first,
+            # so with 'a' and 'a__b' it goes as deep as possible
+            subclasses = sorted(queryset.subclasses, key=len, reverse=True)
+            for obj in iter:
+                sub_obj = None
+                for s in subclasses:
+                    sub_obj = queryset._get_sub_obj_recurse(obj, s)
+                    if sub_obj:
+                        break
+                if not sub_obj:
+                    sub_obj = obj
+
+                if getattr(queryset, '_annotated', False):
+                    for k in queryset._annotated:
+                        setattr(sub_obj, k, getattr(obj, k))
+
+                for k in extras:
+                    setattr(sub_obj, k, getattr(obj, k))
+
+                yield sub_obj
+        else:
+            for obj in iter:
+                yield obj
 
 
 class InheritanceQuerySetMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(InheritanceQuerySetMixin, self).__init__(*args, **kwargs)
+        if django.VERSION > (1, 8):
+            self._iterable_class = InheritanceIterable
+
     def select_subclasses(self, *subclasses):
         levels = self._get_maximum_depth()
         calculated_subclasses = self._get_subclasses_recurse(
@@ -74,6 +115,7 @@ class InheritanceQuerySetMixin(object):
         return qset
 
     def iterator(self):
+        # Maintained for Django 1.8 compatability
         iter = super(InheritanceQuerySetMixin, self).iterator()
         if getattr(self, 'subclasses', False):
             extras = tuple(self.query.extra.keys())
@@ -107,12 +149,20 @@ class InheritanceQuerySetMixin(object):
         recursively, returning a `list` of strings representing the
         relations for select_related
         """
+        if django.VERSION < (1, 8):
+            related_objects = model._meta.get_all_related_objects()
+        else:
+            related_objects = [
+                f for f in model._meta.get_fields()
+                if isinstance(f, OneToOneRel)]
+
         rels = [
-            rel for rel in model._meta.get_all_related_objects()
+            rel for rel in related_objects
             if isinstance(rel.field, OneToOneField)
             and issubclass(rel.field.model, model)
             and model is not rel.field.model
             ]
+
         subclasses = []
         if levels:
             levels -= 1
@@ -141,12 +191,16 @@ class InheritanceQuerySetMixin(object):
         if levels:
             levels -= 1
         while parent_link is not None:
-            ancestry.insert(0, parent_link.related.get_accessor_name())
+            if django.VERSION < (1, 9):
+                related = parent_link.rel
+            else:
+                related = parent_link.remote_field
+            ancestry.insert(0, related.get_accessor_name())
             if levels or levels is None:
                 if django.VERSION < (1, 8):
-                    parent_model = parent_link.related.parent_model
+                    parent_model = related.parent_model
                 else:
-                    parent_model = parent_link.related.model
+                    parent_model = related.model
                 parent_link = parent_model._meta.get_ancestor_link(
                     self.model)
             else:
@@ -155,6 +209,12 @@ class InheritanceQuerySetMixin(object):
 
     def _get_sub_obj_recurse(self, obj, s):
         rel, _, s = s.partition(LOOKUP_SEP)
+
+        # Django 1.9: If a primitive type gets passed to this recursive function,
+        # return None as non-models are not part of inheritance.
+        if not isinstance(obj, models.Model):
+            return None
+
         try:
             node = getattr(obj, rel)
         except ObjectDoesNotExist:
@@ -180,16 +240,16 @@ class InheritanceQuerySetMixin(object):
         return levels
 
 
+class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
+    pass
+
+
 class InheritanceManagerMixin(object):
-    """
-    Mixin class for including inheritance functionality into custom model managers.
-    """
     use_for_related_fields = True
+    _queryset_class = InheritanceQuerySet
 
     def get_queryset(self):
-        return InheritanceQuerySet(self.model)
-
-    get_query_set = get_queryset
+        return self._queryset_class(self.model)
 
     def select_subclasses(self, *subclasses):
         return self.get_queryset().select_subclasses(*subclasses)
@@ -198,72 +258,7 @@ class InheritanceManagerMixin(object):
         return self.get_queryset().get_subclass(*args, **kwargs)
 
 
-class InheritanceQuerySet(InheritanceQuerySetMixin, QuerySet):
-    """
-    This class wraps & modifies a queryset to perform a join (select_related)
-    on all models that are subclasses of the model being queried. This saves
-    additional queries in jumping from the superclass to the subclass every
-    time.
-
-    Sample usage::
-
-        class Place(models.Model):
-            # ...
-
-        class Restaurant(Place):
-            # ...
-
-        class Bar(Place):
-            # ...
-
-        Place.get(pk=1)
-            # will always return a Place instance
-
-        InheritanceQuerySet(Place).select_subclasses().get(pk=1)
-            # will return a Place, Restaurant or Bar instance as appropriate
-
-        InheritanceQuerySet(Place).select_subclasses('bar').get(pk=1)
-            # will return a Place or Bar instance as appropriate,
-            # but Restaurant instances will be returned as Place.
-    """
-    pass
-
-
 class InheritanceManager(InheritanceManagerMixin, models.Manager):
-    """
-    Custom model manager that is aware of inherited models
-    and is able to return appropriate model instances directly.
-
-    If you don't explicitly call select_subclasses() or get_subclass(),
-    an InheritanceManager behaves identically to a normal Manager;
-    so it's safe to use as your default manager for the model.
-
-    Sample usage::
-
-        class Place(models.Model):
-            # ...
-            objects = InheritanceManager()
-
-        class Restaurant(Place):
-            # ...
-
-        class Bar(Place):
-            # ...
-
-        nearby_places = Place.objects.filter(location='here')
-            # Here all nearby_places will be Place instances.
-
-        nearby_places = Place.objects.filter(location='here').select_subclasses()
-            # Each model in nearby_places will be a Place, Restaurant or Bar instance
-            # as appropriate.
-
-        nearby_places = Place.objects.select_subclasses("restaurant")
-            # restaurants will be Restaurant instances, bars will still be
-            # Place instances.
-
-        place = Place.objects.get_subclass(id=some_id)
-            # "place" will automatically be an instance of Place, Restaurant, or Bar.
-    """
     pass
 
 
@@ -283,16 +278,51 @@ class QueryManagerMixin(object):
         return self
 
     def get_queryset(self):
-        try:
-            qs = super(QueryManagerMixin, self).get_queryset().filter(self._q)
-        except AttributeError:
-            qs = super(QueryManagerMixin, self).get_query_set().filter(self._q)
+        qs = super(QueryManagerMixin, self).get_queryset().filter(self._q)
         if self._order_by is not None:
             return qs.order_by(*self._order_by)
         return qs
 
-    get_query_set = get_queryset
-
 
 class QueryManager(QueryManagerMixin, models.Manager):
+    pass
+
+
+class SoftDeletableQuerySetMixin(object):
+    """
+    QuerySet for SoftDeletableModel. Instead of removing instance sets
+    its ``is_removed`` field to True.
+    """
+
+    def delete(self):
+        """
+        Soft delete objects from queryset (set their ``is_removed``
+        field to True)
+        """
+        self.update(is_removed=True)
+
+
+class SoftDeletableQuerySet(SoftDeletableQuerySetMixin, QuerySet):
+    pass
+
+
+class SoftDeletableManagerMixin(object):
+    """
+    Manager that limits the queryset by default to show only not removed
+    instances of model.
+    """
+    _queryset_class = SoftDeletableQuerySet
+
+    def get_queryset(self):
+        """
+        Return queryset limited to not removed entries.
+        """
+        kwargs = {'model': self.model, 'using': self._db}
+        if hasattr(self, '_hints'):
+            kwargs['hints'] = self._hints
+
+        return self._queryset_class(**kwargs).filter(is_removed=False)
+
+
+class SoftDeletableManager(SoftDeletableManagerMixin, models.Manager):
     pass

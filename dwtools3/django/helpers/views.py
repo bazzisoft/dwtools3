@@ -21,9 +21,11 @@ def template_view(template, *args, **kwargs):
 
     Example usage::
 
-        url(r'^500/$', template_view('500.html', context=Context())),
+        url(r'^500/$', template_view('500.html', no_context=True)),
     """
+    no_context = kwargs.pop('no_context', False)
     def view_func(request):
-        return render(request, template, *args, **kwargs)
+        req = None if no_context else request
+        return render(req, template, *args, **kwargs)
 
     return view_func

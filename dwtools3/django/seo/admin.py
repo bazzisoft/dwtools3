@@ -1,8 +1,10 @@
 from django.contrib import admin
-from django.db import models
 from django.core.urlresolvers import reverse
-from django.utils.http import urlquote
+from django.db import models
 from django.utils.html import escape
+from django.utils.http import urlquote
+from django.utils.safestring import mark_safe
+
 from .models import MetaTags, Redirect, normalize_url
 
 
@@ -27,9 +29,8 @@ def create_seo_metatags_admin_list_column(get_url_for_instance_fn=None):
 
     def _seo_link(self, obj):
         url = get_seo_metatags_admin_url(get_url_for_instance_fn(obj))
-        return '<a href="{}">SEO</a>'.format(escape(url))
+        return mark_safe('<a href="{}">SEO</a>'.format(escape(url)))
     _seo_link.short_description = ''
-    _seo_link.allow_tags = True
 
     return _seo_link
 

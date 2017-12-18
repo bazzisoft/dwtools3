@@ -1,7 +1,6 @@
 import time
 import logging
 import pprint
-from optparse import make_option
 from django.core.management.base import BaseCommand
 from ... import api
 
@@ -9,14 +8,9 @@ from ... import api
 class Command(BaseCommand):
     help = 'Synchronize scheduled salesforce updates from the sync queue'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--max-runtime',
-                    action='store',
-                    dest='max_runtime',
-                    default=0,
-                    type=int,
-                    help='Maximum runtime of a single sync run (secs).'),
-        )
+    def add_arguments(self, parser):
+        parser.add_argument('--max-runtime', action='store', type=int, dest='max_runtime',
+                            default=0, help='Maximum runtime of a single sync run (secs).')
 
     def set_verbosity(self, options):
         verbosity = int(options.get('verbosity'))
