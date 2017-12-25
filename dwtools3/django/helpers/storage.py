@@ -16,9 +16,16 @@ class Media(models.Model):
 # NonStrictManifestStaticFilesStorage
 STATICFILES_STORAGE = 'dwtools3.django.helpers.storage.NonStrictManifestStaticFilesStorage'
 
+
+# Lazy version of staticfiles `static()`
+from dwtools3.django.helpers.storage import static_lazy
+lazy_url_str = static_lazy('my_url_name')
+
 """
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 from django.core.files.storage import FileSystemStorage
+from django.templatetags.static import static
+from django.utils.functional import lazy
 
 
 class OverwriteStorage(FileSystemStorage):
@@ -33,3 +40,6 @@ class OverwriteStorage(FileSystemStorage):
 
 class NonStrictManifestStaticFilesStorage(ManifestStaticFilesStorage):
     manifest_strict = False
+
+
+static_lazy = lazy(static, str)
