@@ -1,16 +1,23 @@
 """
-Additional storage backend for overwriting files with the same name.
+Additional storage backends for static files and media.
 
 Usage
 -----
 ::
 
+# OverwriteStorage
 from dwtools3.django.helpers.storage import OverwriteStorage
 
 class Media(models.Model):
     name = models.CharField(max_length=128))
     media = models.FileField(upload_to=settings.MEDIA_DIR, storage=OverwriteStorage())
+
+
+# NonStrictManifestStaticFilesStorage
+STATICFILES_STORAGE = 'dwtools3.django.helpers.storage.NonStrictManifestStaticFilesStorage'
+
 """
+from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 from django.core.files.storage import FileSystemStorage
 
 
@@ -22,3 +29,7 @@ class OverwriteStorage(FileSystemStorage):
         if self.exists(name):
             self.delete(name)
         return name
+
+
+class NonStrictManifestStaticFilesStorage(ManifestStaticFilesStorage):
+    manifest_strict = False
