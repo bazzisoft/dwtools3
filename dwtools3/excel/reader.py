@@ -30,13 +30,13 @@ class ExcelReader:
         """
         Returns the number of sheets in the workbook.
         """
-        return len(self.workbook.get_sheet_names())
+        return len(self.workbook.sheetnames)
 
     def list_sheets(self):
         """
         Returns the names of the sheets in the workbook.
         """
-        return self.workbook.get_sheet_names()
+        return self.workbook.sheetnames
 
     def read_sheet(self, index_or_name, header_row=False):
         """
@@ -48,7 +48,7 @@ class ExcelReader:
         """
         if isinstance(index_or_name, int):
             try:
-                index_or_name = self.workbook.get_sheet_names()[index_or_name]
+                index_or_name = self.workbook.sheetnames[index_or_name]
             except IndexError:
                 raise ExcelReaderError('Sheet with index {} does not exist.'.format(index_or_name)) from None
 
