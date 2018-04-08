@@ -11,6 +11,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--max-runtime', action='store', type=int, dest='max_runtime',
                             default=0, help='Maximum runtime of a single sync run (secs).')
+        parser.add_argument('--delay', action='store', type=int, dest='delay',
+                            default=0, help=('Don\'t run updates until they\'ve been scheduled '
+                                             'for at least this long (secs).'))
 
     def set_verbosity(self, options):
         verbosity = int(options.get('verbosity'))
@@ -30,7 +33,7 @@ class Command(BaseCommand):
                 api.logger.info('Max runtime exceeded, exiting.')
                 break
 
-            item = api.get_next_scheduled_sync_function()
+            item = api.get_next_scheduled_sync_function(delay_secs=options['delay'])
             if not item:
                 api.logger.info('All items processed, exiting.')
                 break

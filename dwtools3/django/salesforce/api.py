@@ -71,11 +71,15 @@ def schedule_sync_function(func, params, scheduled_at=None,
                 item.function)
 
 
-def get_next_scheduled_sync_function():
+def get_next_scheduled_sync_function(delay_secs=0):
     """
     Pop the next sync function entry that needs to run from the queue.
     """
     now = timezone.now()
+
+    if delay_secs > 0:
+        now -= timedelta(seconds=delay_secs)
+
     item = (SyncQueueItem.objects
             .filter(scheduled_at__lte=now)
             .order_by('scheduled_at')
