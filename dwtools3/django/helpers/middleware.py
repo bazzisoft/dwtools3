@@ -24,8 +24,13 @@ def TranslateProxyRemoteAddrMiddleware(get_response):
     """
     def middleware(request):
         if 'HTTP_X_FORWARDED_FOR' in request.META:
-            ip = request.META['HTTP_X_FORWARDED_FOR'].split(",")[0].strip()
-            request.META['REMOTE_ADDR'] = ip
+            fwd_ip = ''
+            for ip in request.META['HTTP_X_FORWARDED_FOR'].split(','):
+                ip = ip.strip()
+                if ip and ip != 'unknown':
+                    fwd_ip = ip
+                    break
+            request.META['REMOTE_ADDR'] = fwd_ip
 
         return get_response(request)
     return middleware

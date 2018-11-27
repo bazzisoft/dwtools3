@@ -2,14 +2,15 @@
 Decorators and exceptions for handling Ajax views with JSON input and output.
 """
 import enum
+from functools import wraps
 import json
 import time
-from functools import wraps
+
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http.response import HttpResponseBadRequest, JsonResponse, \
-    HttpResponseForbidden
+    HttpResponseForbidden, HttpResponse
 from django.utils.http import http_date
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.core.serializers.json import DjangoJSONEncoder
 
 
 class AjaxBadRequest(Exception):
@@ -78,7 +79,10 @@ def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncod
             except AjaxPermissionDenied as e:
                 return HttpResponseForbidden(str(e) or 'Permission denied.')
 
-            response = JsonResponse(data=ret, safe=False, encoder=encoder)
+            if isinstance(ret, HttpResponse):
+                response = ret
+            else:
+                response = JsonResponse(data=ret, safe=False, encoder=encoder)
 
             if expires_in:
                 response['Expires'] = http_date(time.time() + expires_in)
