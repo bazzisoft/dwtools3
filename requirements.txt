@@ -4,6 +4,6 @@ Django>=1.11,<1.12
 openpyxl>=2.6,<2.7
 PyExcelerate>=0.8,<0.9
 pylint
-pypiwin32
 requests>=2,<3
 simple-salesforce>=0.74,<0.75
+twine
