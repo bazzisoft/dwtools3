@@ -21,9 +21,16 @@ import shlex
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
-
+os.environ['DJANGO_SETTINGS_MODULE'] = 'django.conf.global_settings'
 from django.conf import settings
-settings.configure(DEBUG=True)
+settings.configure(
+    DEBUG=True,
+    INSTALLED_APPS=['django.contrib.contenttypes',
+                    'django.contrib.auth',
+                    'dwtools3.django.salesforce'],
+)
+import django
+django.setup()
 
 # -- General configuration ------------------------------------------------
 

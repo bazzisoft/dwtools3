@@ -12,7 +12,6 @@ Contents:
    :maxdepth: 2
    :glob:
 
-   standards_toc
    packages/*
 
 
