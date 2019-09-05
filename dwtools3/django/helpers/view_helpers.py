@@ -1,11 +1,12 @@
 """
 Helper functions for views.
 """
-from functools import wraps
 import operator
+from functools import wraps
 
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
-from django.template import loader, engines
+from django.template import engines, loader
 from django.template.base import TemplateSyntaxError
 
 
@@ -121,3 +122,11 @@ def superuser_required(view_func):
     Decorator that ensures a superuser is logged in.
     """
     return user_passes_test(lambda u: u.is_superuser)(view_func)
+
+
+def clear_django_messages(request):
+    """
+    Clears any pending messages in ``django.contrib.messages``.
+    """
+    # Iterate over the messages to clear them
+    list(messages.get_messages(request))
