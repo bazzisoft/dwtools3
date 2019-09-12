@@ -89,7 +89,7 @@ class SeparatedValuesField(models.TextField):
             # Skip validation for non-editable fields.
             return
 
-        if self._choices and value not in self.empty_values:
+        if self.choices and value not in self.empty_values:
             choice_keys = frozenset(k for k, v in self.choices)
             for v in value:
                 if v not in choice_keys:
