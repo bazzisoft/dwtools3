@@ -18,80 +18,126 @@ class OrderedModelManager(models.Manager):
     """
     Model manager for models that inherit from ``OrderedModel``.
     """
-    def moveup(self, item_or_id):
+    def _get_ordered_id_list_and_current_index(self, item_or_id):
         """
-        Reorders an item up one spot.
-        """
-        item = item_or_id if isinstance(item_or_id, OrderedModel) else self.get(id=item_or_id)
-        filters = item.get_order_within_fields_filters()
-        prevs = self.filter(ordering__lt=item.ordering, **filters).order_by('-ordering')[:2]
-
-        if len(prevs) == 2:
-            self.reorder(item, prevs[1])
-        elif len(prevs) == 1:
-            self.reorder(item, None)
-
-    def movedown(self, item_or_id):
-        """
-        Reorders an item down one spot.
+        Returns the specified item, a list of all IDs in correct order
+        except the specified item's ID, and the index at which the current
+        item was in the list.
         """
         item = item_or_id if isinstance(item_or_id, OrderedModel) else self.get(id=item_or_id)
-        filters = item.get_order_within_fields_filters()
-        next = self.filter(ordering__gt=item.ordering, **filters).order_by('ordering')[:1]
+        assert item.id, 'Cannot order unsaved items.'
+        id_list = list(self.filter(**item.get_order_within_fields_filters())
+                       .values_list('id', flat=True))
 
-        if next:
-            self.reorder(item, next[0])
+        try:
+            current_idx = id_list.index(item.id)
+            del id_list[current_idx]
+        except ValueError:
+            current_idx = None
 
-    def reorder(self, item_or_id, after_item_or_id):
+        return item, id_list, current_idx
+
+    def _move_item_to_index(self, item, id_list, new_idx):
         """
-        Reorders an item, placing it after ``after_item``.
+        Reorders an item, placing it at ``new_idx``.
 
-        Note that the ``order_within_fields`` values in ``item`` must
-        be equal to those in ``after_item`` (otherwise we're reordering
-        between different lists...)
+        If ``new_idx`` is less than 0, the item is placed at the start.
 
-        Automatically rebalances the ordering values if necessary.
+        If ``new_idx`` is greater-equal than the number of items, the item
+        is placed at the end.
         """
-        item = item_or_id if isinstance(item_or_id, OrderedModel) else self.get(id=item_or_id)
-        filters = item.get_order_within_fields_filters()
-        pre = after_item_or_id \
-              if after_item_or_id is None or isinstance(after_item_or_id, OrderedModel) \
-              else self.get(id=after_item_or_id)
-
-        if not item.id or (pre is not None and not pre.id):
-            raise ValueError('Cannot reorder unsaved items.')
-
-        if pre is None:
-            post = self.filter(**filters).order_by('ordering')
+        # Find the ordering of the previous item at the new position
+        if not id_list or new_idx <= 0:
+            pre_id = None
+            pre_ordering = 0
         else:
-            post = self.filter(ordering__gt=pre.ordering, **filters).order_by('ordering')
-        post = post[0] if len(post) > 0 else None
+            if new_idx < len(id_list):
+                pre_id = id_list[new_idx - 1]
+            else:
+                pre_id = id_list[-1]
+            pre_ordering = self.get(id=pre_id).ordering
 
-        # Check if we're moving to same place - noop
-        if item == pre or item == post:
+        # Find the ordering of the next item at the new position
+        if not id_list or new_idx >= len(id_list):
+            post_id = None
+            post_ordering = pre_ordering + 200
+        else:
+            if new_idx >= 0:
+                post_id = id_list[new_idx]
+            else:
+                post_id = id_list[0]
+            post_ordering = self.get(id=post_id).ordering
+
+        # Check if we're moving to same place - no-op
+        if item.id == pre_id or item.id == post_id:
             return
-
-        # Check pre/post have the same order_within_fields values as item
-        tocheck = pre or post
-        if tocheck:
-            for f in item.get_order_within_fields():
-                if getattr(item, f) != getattr(tocheck, f):
-                    raise ValueError('Cannot items to reorder have different values for field "{}"'.format(f))
-
-        # Calculate ordering positions of item before and after
-        pre_ordering = pre.ordering if pre else 0
-        post_ordering = post.ordering if post else pre.ordering + 200
 
         # No room left? Rebalance all ordering values & run recursively
         if post_ordering - pre_ordering <= 1:
-            self.rebalance_ordering(models_to_update=[item] + [pre] if pre else [], **filters)
-            self.reorder(item, pre)
+            self.rebalance_ordering(models_to_update=[item],
+                                    **item.get_order_within_fields_filters())
+            self._move_item_to_index(item, id_list, new_idx)
             return
 
         # We have room, set item.ordering to the mid-point of pre and post
         # then save.
         item.ordering = (pre_ordering + post_ordering) // 2
-        item.save()
+        item.save(update_fields=['ordering'])
+
+    def moveup(self, item_or_id):
+        """
+        Reorders an item up one spot.
+        """
+        item, id_list, current_idx = self._get_ordered_id_list_and_current_index(item_or_id)
+        self._move_item_to_index(item, id_list, current_idx - 1)
+
+    def movedown(self, item_or_id):
+        """
+        Reorders an item down one spot.
+        """
+        item, id_list, current_idx = self._get_ordered_id_list_and_current_index(item_or_id)
+        self._move_item_to_index(item, id_list, current_idx + 1)
+
+    def moveto(self, item_or_id, index):
+        """
+        Reorders an item to the specified index. If index is None, the item
+        is placed at the end.
+        """
+        item, id_list, _current_idx = self._get_ordered_id_list_and_current_index(item_or_id)
+
+        if index is None:
+            index = len(id_list)
+
+        self._move_item_to_index(item, id_list, index)
+
+    def reorder(self, item_or_id, after_item_or_id):
+        """
+        Reorders an item, placing it after ``after_item``.
+
+        If ``after_item`` is None, the item is placed at the top.
+
+        Note that the ``order_within_fields`` values in ``item`` must
+        be equal to those in ``after_item`` (otherwise we're reordering
+        between different lists...)
+        """
+        item, id_list, _current_idx = self._get_ordered_id_list_and_current_index(item_or_id)
+
+        after_id = (after_item_or_id.id if isinstance(after_item_or_id, OrderedModel)
+                    else after_item_or_id)
+
+        # Ordering to same place? No-op
+        if item.id == after_id:
+            return
+
+        if after_id is not None:
+            try:
+                new_idx = id_list.index(after_id) + 1
+            except ValueError:
+                assert False, 'Cannot reorder items with different `order_within_fields` values.'
+        else:
+            new_idx = 0
+
+        self._move_item_to_index(item, id_list, new_idx)
 
     def rebalance_ordering(self, models_to_update=None, **order_within_field_values):
         """
@@ -108,9 +154,9 @@ class OrderedModelManager(models.Manager):
         """
         models_to_update = {m.id: m for m in (models_to_update or ())}
         next_ordering = 100
-        for item in self.filter(**order_within_field_values).order_by('ordering'):
+        for item in self.filter(**order_within_field_values):
             item.ordering = next_ordering
-            item.save()
+            item.save(update_fields=['ordering'])
             if item.id in models_to_update:
                 models_to_update[item.id].ordering = next_ordering
             next_ordering += 100
@@ -153,18 +199,19 @@ class OrderedModel(models.Model):
         ordering = ('ordering',)
         order_within_fields = ()
 
-    def get_order_within_fields(self):
-        return self._meta.order_within_fields
+    @classmethod
+    def get_order_within_fields(cls):
+        return cls._meta.order_within_fields
 
     def get_order_within_fields_filters(self):
         return {f: getattr(self, f) for f in self._meta.order_within_fields}
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.id:
             if self.ordering is None:
                 filters = self.get_order_within_fields_filters()
-                max = self.__class__.objects.filter(**filters).aggregate(Max('ordering'))
-                self.ordering = (max['ordering__max'] or 0) + 100
+                maximum = self.__class__.objects.filter(**filters).aggregate(Max('ordering'))
+                self.ordering = (maximum['ordering__max'] or 0) + 100
         super(OrderedModel, self).save(*args, **kwargs)
 
 
