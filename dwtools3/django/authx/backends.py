@@ -37,7 +37,7 @@ class AuthXModelBackendBase(ModelBackend):
     def get_queryset(self, model_cls):
         return QuerySet(model_cls)
 
-    def authenticate(self, username=None, password=None, **kwargs):
+    def authenticate(self, request=None, username=None, password=None, **kwargs):
         UserModel = get_user_model()
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
