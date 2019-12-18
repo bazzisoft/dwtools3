@@ -1,3 +1,4 @@
+# pylint: disable=redefined-builtin
 """
 Helper functions for views.
 """
@@ -6,6 +7,8 @@ from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import ObjectDoesNotExist
+from django.http.response import Http404
 from django.template import engines, loader
 from django.template.base import TemplateSyntaxError
 
@@ -20,7 +23,7 @@ def render_template_to_string(template=None, vars=None, request=None, template_s
     :param str template: String content to use as the template.
     """
     assert operator.xor(bool(template), bool(template_string)), \
-            'Exactly one of template or template_string must be specified.'
+        'Exactly one of template or template_string must be specified.'
 
     if template_string:
         chain = []
@@ -67,7 +70,8 @@ def validate_form(request, form_cls, initial=None, instance=None, condition=True
         kwargs.update(extra_kwargs)
 
     if request.method == 'POST' and condition:
-        form = form_cls(data=request.POST, files=(request.FILES if len(request.FILES) else None), **kwargs)
+        form = form_cls(
+            data=request.POST, files=(request.FILES if request.FILES else None), **kwargs)
     else:
         form = form_cls(**kwargs)
 
@@ -130,3 +134,14 @@ def clear_django_messages(request):
     """
     # Iterate over the messages to clear them
     list(messages.get_messages(request))
+
+
+def get_model_or_404(getter_fn, pk):
+    """
+    Calls ``getter_fn`` with ``pk`` and returns the resulting object.
+    If ``ObjectDoesNotExist`` is caught, raises Http404
+    """
+    try:
+        return getter_fn(pk)
+    except ObjectDoesNotExist:
+        raise Http404
