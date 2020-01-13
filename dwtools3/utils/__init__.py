@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from functools import wraps
 
 
 def int_or_none(value):
@@ -31,7 +32,8 @@ def extract_object_id(model_cls, object_or_id, allow_none=False):
     try:
         return int(object_or_id)
     except (TypeError, ValueError):
-        assert False, '{} is not a numeric ID or {} instance'.format(object_or_id, model_cls.__class__.__name__)
+        assert False, '{} is not a numeric ID or {} instance'.format(
+            object_or_id, model_cls.__class__.__name__)
 
 
 def extract_object(model_cls, object_or_id, allow_none=False, queryset=None):
@@ -48,22 +50,23 @@ def extract_object(model_cls, object_or_id, allow_none=False, queryset=None):
         return object_or_id
 
     try:
-        id = int(object_or_id)
+        oid = int(object_or_id)
     except (TypeError, ValueError):
-        assert False, '{} is not a numeric ID or {} instance'.format(object_or_id, model_cls.__class__.__name__)
+        assert False, '{} is not a numeric ID or {} instance'.format(
+            object_or_id, model_cls.__class__.__name__)
 
     if queryset is not None:
-        return queryset.get(pk=id)
+        return queryset.get(pk=oid)
     else:
-        return model_cls.objects.get(pk=id)
+        return model_cls.objects.get(pk=oid)
 
 
 def chunk_list(lst, n):
     """
     Split a list into n-sized chunks
     """
-    l = list(lst)
-    return [l[i:i + n] for i in range(0, len(l), n)]
+    lst = list(lst)
+    return [lst[i:i + n] for i in range(0, len(lst), n)]
 
 
 def chunk_list_into_rows_and_cols(lst, num_rows, num_cols):
@@ -86,3 +89,17 @@ def interleave_lists(num, *lsts):
             result.extend(lst[offset:offset + num])
         offset += num
     return result
+
+
+def cached_method(fn):
+    """
+    Decorator the cache the result of a class method for that instance.
+    """
+    cache_attr = '__cached_' + fn.__name__
+
+    @wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        if not hasattr(self, cache_attr):
+            setattr(self, cache_attr, fn(self, *args, **kwargs))
+        return getattr(self, cache_attr)
+    return wrapper
