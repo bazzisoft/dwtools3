@@ -7,3 +7,4 @@ __pycache__
 /.project
 /.settings
 /dwtools3.egg-info
+/.vscode
