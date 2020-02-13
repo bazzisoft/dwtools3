@@ -20,21 +20,25 @@ def render_template_to_string(template=None, vars=None, request=None, template_s
     :param str template: The path & name of the template to render.
     :param dict vars: Extra template variables to push onto the context.
     :param HttpRequest request: The request object. May be None to exclude request context.
-    :param str template: String content to use as the template.
+    :param str template_string: String content to use as the template.
     """
     assert operator.xor(bool(template), bool(template_string)), \
         'Exactly one of template or template_string must be specified.'
 
     if template_string:
         chain = []
+        template_obj = None
         for engine in engines.all():
             try:
                 template_obj = engine.from_string(template_string)
             except TemplateSyntaxError as e:
-                chain.append(e)
+                chain.append((engine.name, e))
 
-        if chain:
-            raise TemplateSyntaxError(template_string, chain=chain)
+        if not template_obj:
+            msg = ['Parsing failed in all template engines.']
+            msg += ['{}: {}'.format(e[0], str(e[1])) for e in chain]
+            msg += ['Template Source:', template_string]
+            raise TemplateSyntaxError('\n'.join(msg))
 
         output = template_obj.render(vars, request)
     else:
