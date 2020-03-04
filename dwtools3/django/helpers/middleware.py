@@ -2,8 +2,6 @@ import functools
 from time import time
 import operator
 from django.db import connection
-from django.http.response import HttpResponse
-from django.utils.html import escapejs
 
 
 def TranslateProxyRemoteAddrMiddleware(get_response):  # pylint: disable=invalid-name
@@ -108,16 +106,10 @@ class PerformanceStatsMiddleware:
 
         print('')
         print(formatted)
-
-        if (isinstance(response, HttpResponse) and response['Content-Type'].startswith('text/html')
-                and not response.get('Content-Disposition')):
-            newcontent = ('''<script>console.log(\'{}\');</script>\n</body>'''
-                          .format(escapejs(formatted)))
-            response.content = response.content.replace(b'</body>', newcontent.encode('utf-8'))
-
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        # pylint: disable=unused-argument
         stats = getattr(request, self.STATS_KEY)
         stats['view_start'] = time()
         stats['middleware_db_queries'] = len(connection.queries)
