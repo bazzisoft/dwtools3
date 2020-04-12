@@ -6,6 +6,7 @@ from .urlparser import URLParser
 
 _DEFAULT_SALT = 'F^u#?8idmR7G8~b=736cGnN3xz49YK=gpHu9n9?F8Ki?pG6J'
 _SIGNED_URL_RE = re.compile(r'^(.*)[\?\&]sig=(\w+)&expiry=(\d+)')
+_SCHEME_DOMAIN_RE = re.compile(r'^https?://[^/]+')
 
 
 def modify_url_query_string(url=None, replace=None, delete=None):
@@ -66,8 +67,16 @@ def verify_signed_url(url, salt=None):
     if expiry <= int(time.time()):
         return None
 
+    # Try to match absolute URL first
     correct_signature = hash_url(url, expiry, salt)
-    if signature != correct_signature:
-        return None
+    if signature == correct_signature:
+        return url
 
-    return url
+    # Try to match relative URL
+    if url.startswith('http'):
+        url = _SCHEME_DOMAIN_RE.sub('', url)
+        correct_signature = hash_url(url, expiry, salt)
+        if signature == correct_signature:
+            return url
+
+    return None
