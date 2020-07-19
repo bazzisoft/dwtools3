@@ -22,7 +22,7 @@ class ExcelStyle:
     All other arguments are boolean.
     """
     HALIGN_LEFT = 'left'
-    HALIGH_CENTER = 'center'
+    HALIGN_CENTER = 'center'
     HALIGN_RIGHT = 'right'
     HALIGN_JUSTIFY = 'justify'
 
@@ -68,7 +68,7 @@ class ExcelStyle:
 
         # Grid
         if grid_color is not None:
-            if isinstance(grid_color, bool) and grid_color == False:
+            if isinstance(grid_color, bool) and not grid_color:
                 self._excel_style.borders = Borders()
             else:
                 border = Border(color=self._to_excel_color(grid_color))
@@ -154,6 +154,9 @@ class ExcelWriter:
         self._sheet = self._workbook.new_sheet(sheet_name)
         self._rowcount = 0
 
+    def num_rows(self):
+        return self._rowcount
+
     def set_default_style(self, style):
         """
         Sets the default style to be used by cells with no specified style.
@@ -185,15 +188,37 @@ class ExcelWriter:
 
         self._sheet.set_col_style(index + 1, Style(**style))
 
+    def set_row_style(self, index, number_format=None, height=None):
+        """
+        Sets the height and/or number format of a single row in the sheet.
+
+        :param int index: The 0-based index of the row.
+        :param int height: The 'em' height for the row.
+        :param str number_format: The excel number format, eg '0.0%'
+        """
+        current = self._sheet.get_row_style(index + 1)
+        style = {
+            'format': current.format,
+            'size': current.size,
+        }
+
+        if number_format is not None:
+            style['format'] = Format(number_format)
+
+        if height is not None:
+            style['size'] = height * 2
+
+        self._sheet.set_row_style(index + 1, Style(**style))
+
     def set_all_column_formats(self, formats):
         """
         Sets the number format of each column in the sheet.
 
         :param list formats: A list of format strings, or None to skip.
         """
-        for i, format in enumerate(formats):
-            if format is not None:
-                self.set_column_style(i, number_format=format)
+        for i, fmt in enumerate(formats):
+            if fmt is not None:
+                self.set_column_style(i, number_format=fmt)
 
     def set_all_column_widths(self, widths):
         """
