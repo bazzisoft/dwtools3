@@ -62,9 +62,10 @@ class AuthXModelBackendBase(ModelBackend):
         UserModel = get_user_model()
         qs = self.get_queryset(UserModel)
         try:
-            return qs.get(pk=user_id)
+            user = qs.get(pk=user_id)
         except UserModel.DoesNotExist:
             return None
+        return user if self.user_can_authenticate(user) else None
 
 
 class CaseInsensitiveAuthXModelBackendMixin:
