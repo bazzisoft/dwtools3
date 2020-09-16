@@ -21,7 +21,7 @@ Usage
 from django.db import connection as django_default_connection
 
 
-class RawSQLBuilder(object):
+class RawSQLBuilder:
     def __init__(self, connection=None):
         self._connection = connection or django_default_connection
         self._sql_parts = []
@@ -43,3 +43,22 @@ class RawSQLBuilder(object):
         cursor = self._connection.cursor()
         cursor.execute(*self.get_sql())
         return cursor
+
+    @staticmethod
+    def columns(cursor):
+        desc = cursor.description
+        return [col[0] for col in desc]
+
+    @staticmethod
+    def dictfetchall(cursor):
+        desc = cursor.description
+        return [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall()
+        ]
+
+    @staticmethod
+    def dictfetchalliter(cursor):
+        desc = cursor.description
+        return (dict(zip([col[0] for col in desc], row))
+                for row in cursor)
