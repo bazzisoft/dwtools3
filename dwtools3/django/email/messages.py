@@ -2,14 +2,16 @@
 Provides enhanced email messaging such as mutlipart html/text emails.
 """
 import re
+
 from django.conf import settings
+from django.core import mail as django_mail
 from django.core.mail.message import EmailMultiAlternatives
 from django.utils.html import strip_tags
-from django.core import mail as django_mail
 
-
-INVISIBLE_HTML_TAGS = ('head', 'style', 'script', 'object', 'embed', 'applet', 'noframes', 'noscript', 'noembed')
-INVISIBLE_HTML_TAGS_RE = [re.compile(r'<{tag}[^>]*?>.*?</{tag}>'.format(tag=tag), re.IGNORECASE | re.DOTALL)
+INVISIBLE_HTML_TAGS = ('head', 'style', 'script', 'object', 'embed', 'applet', 'noframes',
+                       'noscript', 'noembed')
+INVISIBLE_HTML_TAGS_RE = [re.compile(r'<{tag}[^>]*?>.*?</{tag}>'.format(tag=tag),
+                                     re.IGNORECASE | re.DOTALL)
                           for tag in INVISIBLE_HTML_TAGS]
 INVISIBLE_HTML_TAGS_RE.append(re.compile(r'<!--.*?-->', re.IGNORECASE | re.DOTALL))
 INVISIBLE_HTML_TAGS_RE.append(re.compile(r'<!--.*?-->', re.IGNORECASE | re.DOTALL))
@@ -59,7 +61,7 @@ class HTMLEmail(EmailMultiAlternatives):
     """
     def __init__(self, subject='', body='', from_email=None, to=None, bcc=None,
                  connection=None, attachments=None, headers=None, alternatives=None,
-                 cc=None, as_html=True):
+                 cc=None, reply_to=None, as_html=True):
 
         self.as_html = as_html
 
@@ -73,10 +75,13 @@ class HTMLEmail(EmailMultiAlternatives):
             cc = self.__fix_recipient_list(cc)
         if bcc is not None:
             bcc = self.__fix_recipient_list(bcc)
+        if reply_to is not None:
+            reply_to = self.__fix_recipient_list(reply_to)
 
-        super(HTMLEmail, self).__init__(subject=subject, body=body, from_email=from_email, to=to, bcc=bcc,
-                                        connection=connection, attachments=attachments, headers=headers,
-                                        alternatives=alternatives, cc=cc)
+        super(HTMLEmail, self).__init__(
+            subject=subject, body=body, from_email=from_email, to=to, bcc=bcc,
+            connection=connection, attachments=attachments, headers=headers,
+            alternatives=alternatives, cc=cc, reply_to=reply_to)
 
     def message(self):
         """
@@ -96,6 +101,7 @@ class HTMLEmail(EmailMultiAlternatives):
         self.to = HTMLEmail.__fix_recipient_list(self.to)
         self.cc = HTMLEmail.__fix_recipient_list(self.cc)
         self.bcc = HTMLEmail.__fix_recipient_list(self.bcc)
+        self.reply_to = HTMLEmail.__fix_recipient_list(self.reply_to)
 
         return super(HTMLEmail, self).message()
 
@@ -122,7 +128,8 @@ class HTMLEmail(EmailMultiAlternatives):
         return newlist
 
 
-def send_mail(subject, message, to, frm=None, cc=None, bcc=None, attachments=None, headers=None, as_html=True):
+def send_mail(subject, message, to, frm=None, cc=None, bcc=None, attachments=None,
+              headers=None, reply_to=None, as_html=True):
     """
     Send an email per the parameters.
 
@@ -137,11 +144,12 @@ def send_mail(subject, message, to, frm=None, cc=None, bcc=None, attachments=Non
         to = [to] if isinstance(to, str) else to
         cc = [cc] if isinstance(cc, str) else cc
         bcc = [bcc] if isinstance(bcc, str) else bcc
+        reply_to = [reply_to] if isinstance(reply_to, str) else reply_to
 
     HTMLEmail(
         subject, message, from_email=(frm or settings.DEFAULT_FROM_EMAIL),
-        to=to, cc=cc, bcc=bcc, attachments=attachments, headers=headers, connection=connection,
-        as_html=as_html).send()
+        to=to, cc=cc, bcc=bcc, attachments=attachments, headers=headers, reply_to=reply_to,
+        connection=connection, as_html=as_html).send()
 
 
 def send_mass_mail(datadicts, as_html=True):
@@ -156,8 +164,11 @@ def send_mass_mail(datadicts, as_html=True):
     """
     connection = django_mail.get_connection()
 
-    messages = [HTMLEmail(d['subject'], d['message'], from_email=d.get('frm', settings.DEFAULT_FROM_EMAIL),
-                          to=d['to'], cc=d.get('cc'), bcc=d.get('bcc'), attachments=d.get('attachments'),
-                          headers=d.get('headers'), connection=connection, as_html=as_html)
+    messages = [HTMLEmail(d['subject'], d['message'],
+                          from_email=d.get('frm', settings.DEFAULT_FROM_EMAIL),
+                          to=d['to'], cc=d.get('cc'), bcc=d.get('bcc'),
+                          attachments=d.get('attachments'),
+                          headers=d.get('headers'), reply_to=d.get('reply_to'),
+                          connection=connection, as_html=as_html)
                 for d in datadicts]
     return connection.send_messages(messages)
