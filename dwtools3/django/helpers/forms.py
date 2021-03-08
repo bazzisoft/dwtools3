@@ -29,12 +29,12 @@ class KeepCurrentInstanceChoicesModelFormMixin:
                     if hasattr(curval, 'pk'):
                         field.queryset = (
                             field.queryset | curval.__class__.objects.filter(pk=curval.pk)
-                        )
+                        ).distinct()
                     elif hasattr(curval, 'target_field'):
                         field.queryset = (
                             field.queryset |
                             curval.target_field.related_model.objects.filter(pk__in=curval.all())
-                        )
+                        ).distinct()
                     else:
                         # TODO: Other cases we need to handle?
                         pass
