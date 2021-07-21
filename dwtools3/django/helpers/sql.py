@@ -18,11 +18,12 @@ Usage
     with sql.execute() as cursor:
         return cursor.fetchall()
 """
-from django.db import connection as django_default_connection
-
+from django.db import connections, connection as django_default_connection
 
 class RawSQLBuilder:
     def __init__(self, connection=None):
+        if isinstance(connection, str):
+            connection = connections[connection]
         self._connection = connection or django_default_connection
         self._sql_parts = []
         self._params = []
