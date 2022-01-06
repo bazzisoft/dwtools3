@@ -67,7 +67,8 @@ class URLParser:
         portstring = ':{}'.format(self.port) if self.port else ''
         netloc = userstring + self.hostname + portstring
 
-        return urllib.parse.urlunparse((self.protocol, netloc, self.path, None, self.query_string, self.fragment))
+        return urllib.parse.urlunparse(
+            (self.protocol, netloc, self.path, None, self.query_string, self.fragment))
 
     def __str__(self):
         return self.build_url()

@@ -17,14 +17,12 @@ class AjaxBadRequest(Exception):
     """
     Raise from your Ajax view to return a ``HttpResponseBadRequest``.
     """
-    pass
 
 
 class AjaxPermissionDenied(Exception):
     """
     Raise from your Ajax view to return a ``HttpResponseForbidden``.
     """
-    pass
 
 
 def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncoder):
@@ -54,7 +52,8 @@ def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncod
                 return {'success': False}
 
     """
-    assert isinstance(methods, (str, tuple, list)), 'First argument to @ajax must be a list of supported HTTP methods.'
+    assert isinstance(methods, (str, tuple, list)), \
+        'First argument to @ajax must be a list of supported HTTP methods.'
     methods = tuple(methods) if isinstance(methods, str) else methods
 
     def decorator(fn):
@@ -98,8 +97,25 @@ class DjangoJSONEncoderWithEnum(DjangoJSONEncoder):
     """
     JSONEncoder subclass that knows how to encode date/time and decimal types, and enums.
     """
-    def default(self, o):
+    def default(self, o):  # pylint: disable=method-hidden
         if isinstance(o, enum.Enum):
             return str(o)
         else:
             return super().default(o)
+
+
+def cors(origins):
+    """
+    Decorator to send CORS access control headers for the whitelisted origins specified.
+
+    :param origins list: List of origins in the form: ``['https://othersite.com']``
+    """
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(request, *args, **kwargs):
+            response = fn(request, *args, **kwargs)
+            if request.META.get('HTTP_ORIGIN') and request.META.get('HTTP_ORIGIN') in origins:
+                response['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
+            return response
+        return wrapper
+    return decorator

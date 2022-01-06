@@ -40,6 +40,14 @@ View Helper Functions
    :members:
 
 
+Ajax Helpers
+------------
+
+.. automodule:: dwtools3.django.helpers.ajax
+   :members:
+
+
+
 Raw SQL
 -------
 
