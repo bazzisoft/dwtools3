@@ -3,14 +3,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.test import TestCase
-from django.utils.encoding import python_2_unicode_compatible
 
 from ..helpers.models import (OrderedModel,
                               check_model_is_unique_with_conditions,
                               unique_slugify)
 
 
-@python_2_unicode_compatible
 class TestModel(OrderedModel):
     fk = models.PositiveIntegerField(db_index=True)
     name = models.CharField(max_length=100, unique=True)

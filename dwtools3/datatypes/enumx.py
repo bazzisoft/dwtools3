@@ -49,6 +49,7 @@ Usage
     # Returns the enum instance for the given string key
 """
 import enum
+import itertools
 import operator
 from collections import OrderedDict
 
@@ -113,6 +114,20 @@ class EnumX(enum.Enum):
         return (e.as_tuple() for e in cls)
 
     @classmethod
+    def all_before(cls, key):
+        """
+        Returns an iterable of all keys of this enumeration before the specified key.
+        """
+        return itertools.takewhile(lambda x: x[0] != key, cls.all())
+
+    @classmethod
+    def all_from(cls, key):
+        """
+        Returns an iterable of all keys of this enumeration including and after the specified key.
+        """
+        return itertools.dropwhile(lambda x: x[0] != key, cls.all())
+
+    @classmethod
     def as_dict(cls):
         """
         Returns the key-label pairs of the enumeration as a dict.
@@ -122,9 +137,23 @@ class EnumX(enum.Enum):
     @classmethod
     def keys(cls):
         """
-        Returns am iterable of all keys of this enumeration.
+        Returns an iterable of all keys of this enumeration.
         """
         return (e.key for e in cls)
+
+    @classmethod
+    def keys_before(cls, key):
+        """
+        Returns an iterable of all keys of this enumeration before the specified key.
+        """
+        return itertools.takewhile(lambda x: x != key, cls.keys())
+
+    @classmethod
+    def keys_from(cls, key):
+        """
+        Returns an iterable of all keys of this enumeration including and after the specified key.
+        """
+        return itertools.dropwhile(lambda x: x != key, cls.keys())
 
     @classmethod
     def max_length(cls):
