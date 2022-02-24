@@ -1,8 +1,9 @@
+from urllib.parse import quote
+
 from django.contrib import admin
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 from django.utils.html import escape
-from django.utils.http import urlquote
 from django.utils.safestring import mark_safe
 
 from .models import MetaTags, Redirect, normalize_url
@@ -14,7 +15,7 @@ def get_seo_metatags_admin_url(obj_url):
     for the SEO meta tags of the given URL.
     """
     obj_url = normalize_url(obj_url)
-    return reverse('seo_metatags_admin_redirect') + '?url=' + urlquote(obj_url)
+    return reverse('seo_metatags_admin_redirect') + '?url=' + quote(obj_url)
 
 
 def create_seo_metatags_admin_list_column(get_url_for_instance_fn=None):

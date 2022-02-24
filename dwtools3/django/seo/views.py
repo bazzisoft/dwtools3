@@ -1,6 +1,8 @@
+from urllib.parse import quote
+
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
-from django.utils.http import urlquote
+from django.urls import reverse
+
 from .models import MetaTags
 
 
@@ -13,4 +15,4 @@ def seo_metatags_admin_redirect(request):
         metatags = MetaTags.objects.get(url=url)
         return redirect('admin:seo_metatags_change', metatags.id)
     except MetaTags.DoesNotExist:
-        return redirect(reverse('admin:seo_metatags_add') + '?url=' + urlquote(url))
+        return redirect(reverse('admin:seo_metatags_add') + '?url=' + quote(url))

@@ -72,12 +72,13 @@ disable=missing-docstring,
         no-init,
         attribute-defined-outside-init,
         locally-disabled,
-        suppressed-message,       
-        useless-return,        
+        suppressed-message,
+        useless-return,
+        consider-using-f-string,
         # not sure about these?
         no-member,
         unused-argument,
-        
+
         # refactoring, maybe in future
         too-many-locals,
         too-many-branches,
@@ -85,10 +86,10 @@ disable=missing-docstring,
         too-many-statements,
         too-few-public-methods,
         too-many-public-methods,
-        
+
         # pylint internal
         locally-disabled,
-        suppressed-message,        
+        suppressed-message,
 
         # python 2>3 upgrade rules
         print-statement,
@@ -180,7 +181,7 @@ enable= c-extension-no-member,
         deprecated-pragma,
         use-symbolic-message-instead,
 
-       
+
 [REPORTS]
 
 # Python expression which should return a note less than 10 (10 is the highest

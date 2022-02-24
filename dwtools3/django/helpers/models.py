@@ -227,7 +227,9 @@ class TimestampedModel(models.Model):
         abstract = True
 
 
-def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_conditions=None, error_message=None, error_field=None, case_insensitive=False):
+def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_conditions=None,
+                                          error_message=None, error_field=None,
+                                          case_insensitive=False):
     """
     Checks the given model instance is unique with respect to ``unique_fields``.
 
@@ -250,7 +252,8 @@ def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_cond
             check_model_unique_with_conditions(self, ('name', 'type'), {'is_active': True})
     """
     model = type(model_instance)
-    filter_kwargs = {(f + ('__iexact' if case_insensitive else '')): getattr(model_instance, f) for f in unique_fields}
+    filter_kwargs = {(f + ('__iexact' if case_insensitive else '')): getattr(model_instance, f)
+                     for f in unique_fields}
     if qs_conditions is not None:
         filter_kwargs.update(qs_conditions)
     qs = model.objects.filter(**filter_kwargs)

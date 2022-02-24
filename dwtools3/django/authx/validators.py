@@ -9,7 +9,8 @@ from django.core.exceptions import ValidationError
 from .settings import AuthXSettings
 
 
-def validate_username(username, user_id=None, message=None, case_insensitive=True, error_field=None):
+def validate_username(username, user_id=None, message=None,
+                      case_insensitive=True, error_field=None):
     """
     Validates the specified username is not already in use by another user.
 
@@ -59,7 +60,8 @@ def validate_password(password, message=None, error_field=None):
         ``ValidationError``. By default a string message with no field is passed
         to the ``ValidationError`` instance.
     """
-    message = message or _('Password must contain at least {} characters.').format(AuthXSettings.AUTHX_MINIMUM_PASSWORD_LENGTH)
+    message = (message or _('Password must contain at least {} characters.')
+               .format(AuthXSettings.AUTHX_MINIMUM_PASSWORD_LENGTH))
     if len(password) and len(password) < AuthXSettings.AUTHX_MINIMUM_PASSWORD_LENGTH:
         if error_field:
             raise ValidationError({error_field: [message]})
@@ -85,7 +87,8 @@ def validate_confirm_password(password, confirm_password, message=None, error_fi
             raise ValidationError(message)
 
 
-def validate_username_on_form(form, username_field, user_id=None, message=None, case_insensitive=True):
+def validate_username_on_form(form, username_field, user_id=None,
+                              message=None, case_insensitive=True):
     """
     Validates the specified ``username_field`` on ``form`` is not already in use
     by another user.

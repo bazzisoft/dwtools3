@@ -10,5 +10,4 @@ Installation
         )
 
 """
-from .inheritance import InheritanceQuerySet, InheritanceManager, InheritanceManagerMixin
 from .settings import SettingsProxy

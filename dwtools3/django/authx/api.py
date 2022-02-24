@@ -1,15 +1,15 @@
 """
 Public functions exposed by the authx application.
 """
+# pylint: disable=redefined-builtin
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import auth
 from django.contrib.auth import get_user_model
-from django.utils.encoding import force_bytes, force_text
+from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.crypto import salted_hmac
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from ...datatypes import EnumX
-from ..helpers.inheritance import InheritanceQuerySet
 from .settings import AuthXSettings
 
 
@@ -35,13 +35,13 @@ def authenticate(username, password):
     return auth.authenticate(username=username, password=password)
 
 
-def login(request, id=None, username=None, password=None, skip_authentication=False):
+def login(request, uid=None, username=None, password=None, skip_authentication=False):
     """
     Helper function to login a specific user, optionally
     skipping the authentication.
 
     :param HttpRequest request: The request object.
-    :param int id: *Optional*. The user_id to log in.
+    :param int uid: *Optional*. The user_id to log in.
     :param str username: *Optional*. The username of the user to log in.
     :param str password: *Optional*. The password to authenticate the user with.
     :param bool skip_authentication: If True, the password is not checked and
@@ -53,10 +53,10 @@ def login(request, id=None, username=None, password=None, skip_authentication=Fa
 
     """
     # Verify parameters
-    if id is None and username is None:
-        raise ValueError(_('One of id or username must be specified.'))
-    elif id is not None and username is not None:
-        raise ValueError(_('Only one of id or username must be specified.'))
+    if uid is None and username is None:
+        raise ValueError(_('One of uid or username must be specified.'))
+    elif uid is not None and username is not None:
+        raise ValueError(_('Only one of uid or username must be specified.'))
     elif not skip_authentication and username is None:
         raise ValueError(_('Username must be provided when authenticating with password.'))
     elif not skip_authentication and password is None:
@@ -64,11 +64,13 @@ def login(request, id=None, username=None, password=None, skip_authentication=Fa
 
     # Check the user exists
     UserModel = get_user_model()
-    if id:
-        try:
-            user = InheritanceQuerySet(UserModel).get_subclass(pk=id)
-        except UserModel.DoesNotExist:
-            return LoginResult.NO_SUCH_USER
+    try:
+        if uid:
+            user = UserModel.objects.get(pk=uid)
+        else:
+            user = UserModel.objects.get_by_natural_key(username)
+    except UserModel.DoesNotExist:
+        return LoginResult.NO_SUCH_USER
 
     # Check the password authenticates
     if skip_authentication:
@@ -76,11 +78,11 @@ def login(request, id=None, username=None, password=None, skip_authentication=Fa
         backend = auth.get_backends()[0]
         user.backend = '{}.{}'.format(backend.__module__, backend.__class__.__name__)
     else:
-        user = auth.authenticate(username=username, password=password)
-        if user is None:
-            return LoginResult.INCORRECT_PASSWORD
-        elif not user.is_active:
+        authenticated_user = auth.authenticate(username=username, password=password)
+        if authenticated_user is None and not user.is_active:
             return LoginResult.ACCOUNT_INACTIVE
+        elif authenticated_user is None:
+            return LoginResult.INCORRECT_PASSWORD
         elif AuthXSettings.AUTHX_ENFORCE_EMAIL_VERIFICATION and not user.is_email_verified:
             return LoginResult.EMAIL_NOT_VERIFIED
 
@@ -121,12 +123,12 @@ def create_single_use_login_hash(user, used_for='default'):
     a user once (works until the next time the user logs in).
 
     Works using the Django forgot password mechanism, and expires
-    after ``PASSWORD_RESET_TIMEOUT_DAYS`` days.
+    after ``PASSWORD_RESET_TIMEOUT`` seconds.
 
     :param str used_for: An arbitrary string to identify the use of
         this hash, so it can't be used for password reset etc.
     """
-    uidb64 = force_text(urlsafe_base64_encode(force_bytes(user.pk)))
+    uidb64 = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
 
     # Password is hashed by token generator, so add our used_for string to it
     oldpass = user.password
@@ -157,12 +159,12 @@ def verify_single_use_login_hash(hash, used_for='default'):
         return None
 
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))
     except ValueError:
         return None
 
     try:
-        user = InheritanceQuerySet(UserModel).get_subclass(pk=uid)
+        user = UserModel.objects.get(pk=uid)
     except UserModel.DoesNotExist:
         return None
 
@@ -189,7 +191,7 @@ def create_multi_use_login_hash(user, used_for='default'):
     """
     value = user.username + user.password + used_for
     hash = salted_hmac(KEY_SALT, value).hexdigest()
-    uidb64 = force_text(urlsafe_base64_encode(force_bytes(user.pk)))
+    uidb64 = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
     return '{}+{}'.format(uidb64, hash)
 
 
@@ -212,12 +214,12 @@ def verify_multi_use_login_hash(hash, used_for='default'):
         return None
 
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))
     except ValueError:
         return None
 
     try:
-        user = InheritanceQuerySet(UserModel).get_subclass(pk=uid)
+        user = UserModel.objects.get(pk=uid)
     except UserModel.DoesNotExist:
         return None
 

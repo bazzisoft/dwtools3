@@ -1,4 +1,10 @@
 
+v3.0
+----
+- Drop support for Django < 3.2 (LTS)
+- Remove now unnecessary authx and InheritanceQueryset functionality
+
+
 v2.0
 ----
 - Drop support for Django < 1.11 (LTS)

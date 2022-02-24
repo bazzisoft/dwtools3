@@ -12,7 +12,7 @@ models based on ``AbstractUser``::
     # admin.py
 
     from django.contrib import admin
-    from dwtools2.django.authx.admin import AuthXUserAdmin
+    from dwtools3.django.authx.admin import AuthXUserAdmin
     from .models import MyUserModel
 
     @admin.register(MyUserModel)
@@ -20,7 +20,8 @@ models based on ``AbstractUser``::
         fieldsets = (
             (None, {'fields': ('username', 'password')}),
             (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
-            (_('Permissions'), {'fields': ('is_active', 'is_email_verified', 'is_staff', 'is_superuser', 'groups')}),
+            (_('Permissions'), {'fields': ('is_active', 'is_email_verified', 'is_staff',
+                                           'is_superuser', 'groups')}),
             (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
             (_('Extra fields'), {'fields': ('my_field',)}),
         )
@@ -46,11 +47,11 @@ def build_user_creation_form(base=UserChangeForm):
             'password_mismatch': _('The two password fields didn\'t match.'),
         }
 
-        password = forms.CharField(label=_('Password'),
-                                   widget=forms.PasswordInput)
-        password2 = forms.CharField(label=_('Password confirmation'),
-                                    widget=forms.PasswordInput,
-                                    help_text=_('Enter the same password as above, for verification.'))
+        password = forms.CharField(
+            label=_('Password'), widget=forms.PasswordInput)
+        password2 = forms.CharField(
+            label=_('Password confirmation'), widget=forms.PasswordInput,
+            help_text=_('Enter the same password as above, for verification.'))
 
         def clean_password(self):
             # Override change form password cleaning which won't work
@@ -60,7 +61,8 @@ def build_user_creation_form(base=UserChangeForm):
             password1 = self.cleaned_data.get('password')
             password2 = self.cleaned_data.get('password2')
             if password1 and password2 and password1 != password2:
-                raise ValidationError(self.error_messages['password_mismatch'], code='password_mismatch')
+                raise ValidationError(
+                    self.error_messages['password_mismatch'], code='password_mismatch')
             return password2
 
         def save(self, commit=True):
@@ -83,7 +85,8 @@ class AuthXUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_email_verified', 'is_staff', 'is_superuser', 'groups')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_email_verified', 'is_staff',
+                                       'is_superuser', 'groups')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 

@@ -25,7 +25,9 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'django.conf.global_settings'
 from django.conf import settings
 settings.configure(
     DEBUG=True,
-    INSTALLED_APPS=['django.contrib.contenttypes',
+    SECRET_KEY='12345',
+    INSTALLED_APPS=['django.contrib.admin',
+                    'django.contrib.contenttypes',
                     'django.contrib.auth',
                     'dwtools3.django.salesforce'],
 )

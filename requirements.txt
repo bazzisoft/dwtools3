@@ -1,9 +1,9 @@
-Sphinx>=2,<3
-sphinx-rtd-theme>=0,<1
-Django>=1.11,<1.12
-openpyxl>=2.6,<2.7
-PyExcelerate>=0.8,<0.9
+Sphinx~=4.4
+sphinx-rtd-theme~=1.0
+Django~=3.2.0
+openpyxl~=3.0
+PyExcelerate~=0.10
 pylint
-requests>=2,<3
-simple-salesforce>=0.74,<0.75
+requests~=2.27
+simple-salesforce~=1.11
 twine

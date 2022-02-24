@@ -3,15 +3,15 @@
 =====================================================
 
 .. automodule:: dwtools3.django.authx
- 
-   
+
+
 Settings
 --------
-   
+
 .. automodule:: dwtools3.django.authx.settings
    :members:
-   
-   
+
+
 Models
 ------
 
@@ -20,29 +20,14 @@ Models
    :show-inheritance:
 
 
-Authentication Backends
------------------------
-
-.. automodule:: dwtools3.django.authx.backends
-   :members:
-
-   
-Middleware
-----------
-
-.. REM automodule:: dwtools3.django.authx.middleware
-   :members:
-   :show-inheritance:
-
-   
 Admin
 -----
 
 .. automodule:: dwtools3.django.authx.admin
    :members:
    :show-inheritance:
-   
-   
+
+
 Validators
 ----------
 
@@ -51,11 +36,7 @@ Validators
 
 
 API Functions
--------------   
+-------------
 
 .. automodule:: dwtools3.django.authx.api
    :members:
-   
-
-   
-   

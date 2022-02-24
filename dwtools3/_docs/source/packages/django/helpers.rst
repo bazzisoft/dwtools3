@@ -12,13 +12,6 @@ Application-Specific Settings
    :members:
 
 
-Model Inheritance
------------------
-
-.. automodule:: dwtools3.django.helpers.inheritance
-   :members:
-
-
 Models
 ------
 
