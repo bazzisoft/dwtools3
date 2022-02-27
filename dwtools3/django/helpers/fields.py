@@ -65,7 +65,7 @@ class SeparatedValuesField(models.TextField):
         else:
             return value.split(self.delimiter)
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         return self._parse_value(value)
 
     def to_python(self, value):

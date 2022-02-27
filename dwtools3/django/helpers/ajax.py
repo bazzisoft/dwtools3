@@ -37,7 +37,7 @@ def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncod
     view to short-circuit processing and abort.
 
     :param str/list method: A single or list of HTTP methods supported by this endpoint.
-    :param bool login_required: True is a ``request.user.is_authenticated()`` check
+    :param bool login_required: True is a ``request.user.is_authenticated`` check
         should be made before the view runs.
     :param int expires_in: If none, no caching headers are sent. If positive/negative,
         the Expires HTTP header is set for the given number of secs forward/backward.
@@ -62,7 +62,7 @@ def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncod
             if request.method not in methods:
                 return HttpResponseBadRequest('Method {} not supported.'.format(request.method))
 
-            if login_required and not request.user.is_authenticated():
+            if login_required and not request.user.is_authenticated:
                 return HttpResponseForbidden('Permission denied.')
 
             if request.body:
