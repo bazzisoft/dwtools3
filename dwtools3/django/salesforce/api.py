@@ -33,7 +33,7 @@ def create_salesforce_instance():
     return Salesforce(username=SalesforceSettings.SALESFORCE_USERNAME,
                       password=SalesforceSettings.SALESFORCE_PASSWORD,
                       security_token=SalesforceSettings.SALESFORCE_SECURITY_TOKEN,
-                      sandbox=SalesforceSettings.SALESFORCE_USE_SANDBOX,
+                      domain='test' if SalesforceSettings.SALESFORCE_USE_SANDBOX else None,
                       version=SalesforceSettings.SALESFORCE_API_VERSION or DEFAULT_API_VERSION)
 
 
