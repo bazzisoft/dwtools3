@@ -128,6 +128,16 @@ class EnumX(enum.Enum):
         return itertools.dropwhile(lambda x: x[0] != key, cls.all())
 
     @classmethod
+    def all_between(cls, frm, to):
+        """
+        Returns an iterable of all keys of this between ``frm`` and ``to``, including ``frm``
+        but not including ``to``.
+        """
+        return itertools.takewhile(
+            lambda x: x[0] != to,
+            itertools.dropwhile(lambda x: x[0] != frm, cls.all()))
+
+    @classmethod
     def as_dict(cls):
         """
         Returns the key-label pairs of the enumeration as a dict.
@@ -154,6 +164,16 @@ class EnumX(enum.Enum):
         Returns an iterable of all keys of this enumeration including and after the specified key.
         """
         return itertools.dropwhile(lambda x: x != key, cls.keys())
+
+    @classmethod
+    def keys_between(cls, frm, to):
+        """
+        Returns an iterable of all keys of this between ``frm`` and ``to``, including ``frm``
+        but not including ``to``.
+        """
+        return itertools.takewhile(
+            lambda x: x != to,
+            itertools.dropwhile(lambda x: x != frm, cls.keys()))
 
     @classmethod
     def max_length(cls):
