@@ -1,12 +1,13 @@
 """
 Helper functions/classes for models.
 """
+# pylint: disable=protected-access
 import re
 from django.db import models
 from django.db.models.aggregates import Max
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
-from django.utils.text import capfirst, get_text_list
+from django.utils.text import get_text_list
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -69,7 +70,7 @@ class OrderedModelManager(models.Manager):
             post_ordering = self.get(id=post_id).ordering
 
         # Check if we're moving to same place - no-op
-        if item.id == pre_id or item.id == post_id:
+        if item.id in (pre_id, post_id):
             return
 
         # No room left? Rebalance all ordering values & run recursively
@@ -110,34 +111,40 @@ class OrderedModelManager(models.Manager):
 
         self._move_item_to_index(item, id_list, index)
 
-    def reorder(self, item_or_id, after_item_or_id):
+    def reorder(self, item_or_id, to_item_or_id):
         """
-        Reorders an item, placing it after ``after_item``.
+        Reorders an item, placing it before ``to_item_or_id`` if moving up
+        and placing it after ``to_item_or_id`` if moving down.
 
-        If ``after_item`` is None, the item is placed at the top.
+        If ``to_item_or_id`` is None, the item is placed at the end.
 
-        Note that the ``order_within_fields`` values in ``item`` must
-        be equal to those in ``after_item`` (otherwise we're reordering
+        Note that the ``order_within_fields`` values in ``item_or_id`` must
+        be equal to those in ``to_item_or_id`` (otherwise we're reordering
         between different lists...)
-        """
-        item, id_list, _current_idx = self._get_ordered_id_list_and_current_index(item_or_id)
 
-        after_id = (after_item_or_id.id if isinstance(after_item_or_id, OrderedModel)
-                    else after_item_or_id)
+        Returns a 2-tuple of ``(old_index, new_index)`` for ``item_or_id``.
+        """
+        item, id_list, item_idx = self._get_ordered_id_list_and_current_index(item_or_id)
+        to_id = to_item_or_id.id if isinstance(to_item_or_id, OrderedModel) else to_item_or_id
 
         # Ordering to same place? No-op
-        if item.id == after_id:
-            return
+        if item.id == to_id:
+            return (item_idx, item_idx)
 
-        if after_id is not None:
+        if to_id is not None:
             try:
-                new_idx = id_list.index(after_id) + 1
+                to_idx = id_list.index(to_id)
+                if to_idx < item_idx:
+                    new_idx = to_idx
+                else:
+                    new_idx = to_idx + 1
             except ValueError:
                 assert False, 'Cannot reorder items with different `order_within_fields` values.'
         else:
-            new_idx = 0
+            new_idx = len(id_list)
 
         self._move_item_to_index(item, id_list, new_idx)
+        return (item_idx, new_idx)
 
     def rebalance_ordering(self, models_to_update=None, **order_within_field_values):
         """
@@ -212,7 +219,7 @@ class OrderedModel(models.Model):
                 filters = self.get_order_within_fields_filters()
                 maximum = self.__class__.objects.filter(**filters).aggregate(Max('ordering'))
                 self.ordering = (maximum['ordering__max'] or 0) + 100
-        super(OrderedModel, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class TimestampedModel(models.Model):
@@ -337,15 +344,15 @@ def unique_slugify(instance, value, slug_field_name='slug', queryset=None, slug_
         queryset = queryset.exclude(pk=instance.pk)
 
     # Find a unique slug. If one matches, at '-2' to the end and try again (then '-3', etc).
-    next = 2
+    nextdigit = 2
     while not slug or queryset.filter(**{slug_field_name: slug}):
         slug = original_slug
-        end = '%s%s' % (slug_separator, next)
+        end = '%s%s' % (slug_separator, nextdigit)
         if slug_len and len(slug) + len(end) > slug_len:
             slug = slug[:slug_len - len(end)]
             slug = _slug_strip(slug, slug_separator)
         slug = '%s%s' % (slug, end)
-        next += 1
+        nextdigit += 1
 
     setattr(instance, slug_field.attname, slug)
 

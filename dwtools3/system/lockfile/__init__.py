@@ -4,7 +4,7 @@ Provides file-based locking for linux and windows platforms.
 
 Dependencies
 ------------
-None.
+On windows, you need to install the ``pypiwin32`` package.
 
 
 Usage

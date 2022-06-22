@@ -79,7 +79,7 @@ class OrderedModelTestCase(TestCase):
         self.assertEqual(TestModel.objects.get(name='3-1').ordering, 100)
 
     def test_reorder_mid2first(self):
-        TestModel.objects.reorder(self.lut['1-3'], None)
+        TestModel.objects.reorder(self.lut['1-3'], self.lut['1-1'])
         self.assertEqual(TestModel.objects.get(name='1-1').ordering, 100)
         self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
         self.assertEqual(TestModel.objects.get(name='1-3').ordering, 50)
@@ -90,7 +90,7 @@ class OrderedModelTestCase(TestCase):
         self.assertEqual(TestModel.objects.get(name='2-3').ordering, 300)
 
     def test_reorder_end2first(self):
-        TestModel.objects.reorder(self.lut['1-5'], None)
+        TestModel.objects.reorder(self.lut['1-5'], self.lut['1-1'])
         self.assertEqual(TestModel.objects.get(name='1-1').ordering, 100)
         self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
         self.assertEqual(TestModel.objects.get(name='1-3').ordering, 300)
@@ -101,7 +101,7 @@ class OrderedModelTestCase(TestCase):
         self.assertEqual(TestModel.objects.get(name='2-3').ordering, 300)
 
     def test_reorder_first2first(self):
-        TestModel.objects.reorder(self.lut['1-1'], None)
+        TestModel.objects.reorder(self.lut['1-1'], self.lut['1-1'])
         self.assertEqual(TestModel.objects.get(name='1-1').ordering, 100)
         self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
         self.assertEqual(TestModel.objects.get(name='1-3').ordering, 300)
@@ -122,8 +122,30 @@ class OrderedModelTestCase(TestCase):
         self.assertEqual(TestModel.objects.get(name='2-2').ordering, 200)
         self.assertEqual(TestModel.objects.get(name='2-3').ordering, 300)
 
+    def test_reorder_mid2none(self):
+        TestModel.objects.reorder(self.lut['1-3'], None)
+        self.assertEqual(TestModel.objects.get(name='1-1').ordering, 100)
+        self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
+        self.assertEqual(TestModel.objects.get(name='1-3').ordering, 600)
+        self.assertEqual(TestModel.objects.get(name='1-4').ordering, 400)
+        self.assertEqual(TestModel.objects.get(name='1-5').ordering, 500)
+        self.assertEqual(TestModel.objects.get(name='2-1').ordering, 100)
+        self.assertEqual(TestModel.objects.get(name='2-2').ordering, 200)
+        self.assertEqual(TestModel.objects.get(name='2-3').ordering, 300)
+
     def test_reorder_end2end(self):
         TestModel.objects.reorder(self.lut['1-5'], self.lut['1-5'])
+        self.assertEqual(TestModel.objects.get(name='1-1').ordering, 100)
+        self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
+        self.assertEqual(TestModel.objects.get(name='1-3').ordering, 300)
+        self.assertEqual(TestModel.objects.get(name='1-4').ordering, 400)
+        self.assertEqual(TestModel.objects.get(name='1-5').ordering, 500)
+        self.assertEqual(TestModel.objects.get(name='2-1').ordering, 100)
+        self.assertEqual(TestModel.objects.get(name='2-2').ordering, 200)
+        self.assertEqual(TestModel.objects.get(name='2-3').ordering, 300)
+
+    def test_reorder_end2none(self):
+        TestModel.objects.reorder(self.lut['1-5'], None)
         self.assertEqual(TestModel.objects.get(name='1-1').ordering, 100)
         self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
         self.assertEqual(TestModel.objects.get(name='1-3').ordering, 300)
@@ -144,8 +166,19 @@ class OrderedModelTestCase(TestCase):
         self.assertEqual(TestModel.objects.get(name='2-2').ordering, 200)
         self.assertEqual(TestModel.objects.get(name='2-3').ordering, 300)
 
+    def test_reorder_first2none(self):
+        TestModel.objects.reorder(self.lut['1-1'], None)
+        self.assertEqual(TestModel.objects.get(name='1-1').ordering, 600)
+        self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
+        self.assertEqual(TestModel.objects.get(name='1-3').ordering, 300)
+        self.assertEqual(TestModel.objects.get(name='1-4').ordering, 400)
+        self.assertEqual(TestModel.objects.get(name='1-5').ordering, 500)
+        self.assertEqual(TestModel.objects.get(name='2-1').ordering, 100)
+        self.assertEqual(TestModel.objects.get(name='2-2').ordering, 200)
+        self.assertEqual(TestModel.objects.get(name='2-3').ordering, 300)
+
     def test_reorder_up(self):
-        TestModel.objects.reorder(self.lut['1-4'], self.lut['1-1'])
+        TestModel.objects.reorder(self.lut['1-4'], self.lut['1-2'])
         self.assertEqual(TestModel.objects.get(name='1-1').ordering, 100)
         self.assertEqual(TestModel.objects.get(name='1-2').ordering, 200)
         self.assertEqual(TestModel.objects.get(name='1-3').ordering, 300)
@@ -288,7 +321,7 @@ class OrderedModelTestCase(TestCase):
         self.add_item(3, 1, 1)
         self.add_item(3, 2, 2)
         self.add_item(3, 3, 3)
-        TestModel.objects.reorder(self.lut['3-2'], None)
+        TestModel.objects.reorder(self.lut['3-2'], self.lut['3-1'])
         self.assertEqual(TestModel.objects.get(name='3-1').ordering, 100)
         self.assertEqual(TestModel.objects.get(name='3-2').ordering, 50)
         self.assertEqual(TestModel.objects.get(name='3-3').ordering, 300)

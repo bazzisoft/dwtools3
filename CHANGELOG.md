@@ -1,4 +1,9 @@
 
+v3.1
+----
+- Change OrderedModel.reorder() behaviour to better match expected drag & drop behaviour.
+
+
 v3.0
 ----
 - Drop support for Django < 3.2 (LTS)
