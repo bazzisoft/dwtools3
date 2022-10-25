@@ -47,7 +47,8 @@ def render_template_to_string(template=None, vars=None, request=None, template_s
     return output
 
 
-def validate_form(request, form_cls, initial=None, instance=None, condition=True, **extra_kwargs):
+def validate_form(request, form_cls, initial=None, instance=None, condition=True, data=None,
+                  **extra_kwargs):
     """
     Creates a form instance with/without data depending
     on whether page was POSTed. Returns the form instance.
@@ -61,6 +62,7 @@ def validate_form(request, form_cls, initial=None, instance=None, condition=True
 
             form = validate_form(request, MyForm, condition=('myformsubmit' in request.POST))
 
+    :param data: Custom data dict to use instead of request.POST
     :param extra_kwargs: Any extra kwargs passed to the form constructor.
 
     :returns: The validated form class instance, after calling ``full_clean()``.
@@ -73,9 +75,9 @@ def validate_form(request, form_cls, initial=None, instance=None, condition=True
     if extra_kwargs:
         kwargs.update(extra_kwargs)
 
-    if request.method == 'POST' and condition:
+    if (data or request.method == 'POST') and condition:
         form = form_cls(
-            data=request.POST, files=(request.FILES if request.FILES else None), **kwargs)
+            data=data or request.POST, files=(request.FILES if request.FILES else None), **kwargs)
     else:
         form = form_cls(**kwargs)
 
