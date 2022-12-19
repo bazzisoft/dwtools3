@@ -67,9 +67,14 @@ def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncod
 
             if request.body:
                 try:
-                    kwargs = dict(kwargs, jsondata=json.loads(request.body.decode('utf-8')))
+                    jsondata = json.loads(request.body.decode('utf-8'))
                 except ValueError:
                     return HttpResponseBadRequest('Invalid JSON in request body.')
+
+                if not isinstance(jsondata, (dict, list)):
+                    return HttpResponseBadRequest("JSON object is required.")
+
+                kwargs = dict(kwargs, jsondata=jsondata)
 
             try:
                 ret = fn(request, *args, **kwargs)
