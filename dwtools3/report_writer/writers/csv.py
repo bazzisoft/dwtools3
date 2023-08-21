@@ -12,9 +12,16 @@ class CSVReportWriter(IReportWriter):
 
         with open(path, 'w', newline='', encoding='utf-8') as f:
     """
+
     def __init__(self, definition, stream, close_stream):
         super().__init__(definition, stream, close_stream)
-        self.writer = csv.DictWriter(stream, fieldnames=self.definition.list_fields(exclude_datatypes=self.list_excluded_datatypes()), extrasaction='ignore')
+        self.writer = csv.DictWriter(
+            stream,
+            fieldnames=self.definition.list_fields(
+                exclude_datatypes=self.list_excluded_datatypes()
+            ),
+            extrasaction="ignore",
+        )
 
     def list_excluded_datatypes(self):
         return (DataType.HTML,)
@@ -23,7 +30,7 @@ class CSVReportWriter(IReportWriter):
         output = {}
         for col in self.definition.columns:
             cellstyle = styledict.get(col.field_name) if styledict else None
-            value = rowdict.get(col.field_name, '')
+            value = rowdict.get(col.field_name, "")
             datatype = self._determine_datatype(cellstyle, rowstyle, col.colstyle)
             output[col.field_name] = self.definition.formatter.format(datatype, value)
 

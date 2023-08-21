@@ -42,7 +42,9 @@ from .dictwriter import ExcelDictWriter
 
 
 __all__ = [
-    'ExcelReader', 'ExcelReaderError',
-    'ExcelWriter', 'ExcelStyle',
-    'ExcelDictWriter',
+    "ExcelReader",
+    "ExcelReaderError",
+    "ExcelWriter",
+    "ExcelStyle",
+    "ExcelDictWriter",
 ]

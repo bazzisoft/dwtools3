@@ -100,8 +100,8 @@ class EnumX(enum.Enum):
 
     @classmethod
     def _get_key_cache(cls):
-        if not hasattr(cls, '_key_cache'):
-            setattr(cls, '_key_cache', OrderedDict((e.key, e) for e in cls))
+        if not hasattr(cls, "_key_cache"):
+            setattr(cls, "_key_cache", OrderedDict((e.key, e) for e in cls))
         return cls._key_cache
 
     @classmethod
@@ -134,8 +134,8 @@ class EnumX(enum.Enum):
         but not including ``to``.
         """
         return itertools.takewhile(
-            lambda x: x[0] != to,
-            itertools.dropwhile(lambda x: x[0] != frm, cls.all()))
+            lambda x: x[0] != to, itertools.dropwhile(lambda x: x[0] != frm, cls.all())
+        )
 
     @classmethod
     def as_dict(cls):
@@ -172,8 +172,8 @@ class EnumX(enum.Enum):
         but not including ``to``.
         """
         return itertools.takewhile(
-            lambda x: x != to,
-            itertools.dropwhile(lambda x: x != frm, cls.keys()))
+            lambda x: x != to, itertools.dropwhile(lambda x: x != frm, cls.keys())
+        )
 
     @classmethod
     def max_length(cls):

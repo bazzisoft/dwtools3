@@ -8,6 +8,7 @@ class ExcelReaderError(IOError):
     """
     Raised if an invalid XLSX is opened, or invalid sheets are read.
     """
+
     pass
 
 
@@ -18,13 +19,16 @@ class ExcelReader:
     :param filename_or_stream: The path to the XLSX file or any stream
         with the file contents.
     """
+
     def __init__(self, filename_or_stream=None):
         try:
-            self.workbook = openpyxl.load_workbook(filename_or_stream, read_only=True, data_only=True)
+            self.workbook = openpyxl.load_workbook(
+                filename_or_stream, read_only=True, data_only=True
+            )
         except (OSError, InvalidFileException) as e:
             raise ExcelReaderError(str(e)) from e
         except BadZipFile as e:
-            raise ExcelReaderError('Not a valid XLSX file.') from e
+            raise ExcelReaderError("Not a valid XLSX file.") from e
 
     def num_sheets(self):
         """
@@ -50,12 +54,16 @@ class ExcelReader:
             try:
                 index_or_name = self.workbook.sheetnames[index_or_name]
             except IndexError:
-                raise ExcelReaderError('Sheet with index {} does not exist.'.format(index_or_name)) from None
+                raise ExcelReaderError(
+                    "Sheet with index {} does not exist.".format(index_or_name)
+                ) from None
 
         try:
             sheet = self.workbook[index_or_name]
         except KeyError:
-            raise ExcelReaderError('Sheet with name "{}" does not exist.'.format(index_or_name)) from None
+            raise ExcelReaderError(
+                'Sheet with name "{}" does not exist.'.format(index_or_name)
+            ) from None
 
         it = iter(sheet.rows)
 

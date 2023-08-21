@@ -9,11 +9,11 @@ def metatags(request):
     This happens the first time any template is rendered with
     a ``RequestContext``.
     """
-    if hasattr(request, '_seo_metatags_loaded'):
+    if hasattr(request, "_seo_metatags_loaded"):
         return {}
 
-    setattr(request, '_seo_metatags_loaded', True)
-    if not hasattr(request, 'meta'):
+    setattr(request, "_seo_metatags_loaded", True)
+    if not hasattr(request, "meta"):
         request.meta = {}
 
     try:

@@ -8,6 +8,7 @@ def SEORedirectMiddleware(get_response):
     Intercepts 404 errors and checks the database for any defined
     redirecs that match the current request path.
     """
+
     def middleware(request):
         response = get_response(request)
 

@@ -11,31 +11,32 @@ class URLParser:
 
     :param str url: The URL to parse.
     """
+
     def __init__(self, url):
         ret = urllib.parse.urlparse(url)
 
-        self.protocol = ret.scheme or ''
+        self.protocol = ret.scheme or ""
         """eg. ``http``, ``https``"""
 
-        self.username = ret.username or ''
+        self.username = ret.username or ""
         """eg. ``http://joe:secret@foo.com/  =>  joe``"""
 
-        self.password = ret.password or ''
+        self.password = ret.password or ""
         """eg. ``http://joe:secret@foo.com/  =>  secret``"""
 
-        self.hostname = ret.hostname or ''
+        self.hostname = ret.hostname or ""
         """eg. ``foo.com``"""
 
-        self.port = ret.port or ''
+        self.port = ret.port or ""
         """eg. ``http://foo.com:8080/  =>  8080``"""
 
-        self.path = ret.path or ''
+        self.path = ret.path or ""
         """eg. ``/path/to/content/``"""
 
         self.query = None
         """OrderedDict of name-value pair GET parameters."""
 
-        self.fragment = ret.fragment or ''
+        self.fragment = ret.fragment or ""
         """eg. ``http://foo.com/page/#contents  =>  contents``"""
 
         # Parse the query string into self.query
@@ -57,18 +58,19 @@ class URLParser:
         """
         Builds a full URL from the split components.
         """
-        userstring = ''
+        userstring = ""
         if self.username:
             userstring += self.username
             if self.password:
-                userstring += ':' + self.password
-            userstring += '@'
+                userstring += ":" + self.password
+            userstring += "@"
 
-        portstring = ':{}'.format(self.port) if self.port else ''
+        portstring = ":{}".format(self.port) if self.port else ""
         netloc = userstring + self.hostname + portstring
 
         return urllib.parse.urlunparse(
-            (self.protocol, netloc, self.path, None, self.query_string, self.fragment))
+            (self.protocol, netloc, self.path, None, self.query_string, self.fragment)
+        )
 
     def __str__(self):
         return self.build_url()

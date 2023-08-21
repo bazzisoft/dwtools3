@@ -27,25 +27,39 @@ class Style:
     :param bool wrap_text: Whether text should wrap into multiple lines or be truncated.
     :param int grid_color: 24-bit RBG font color for cell grid, such as ``0xFF8022``.
     """
-    def __init__(self, datatype=None, colspan=None, font=None, fontsize=None,
-                 bold=None, italic=None, underline=None, strike=None,
-                 color=None, bgcolor=None, align=None, valign=None,
-                 wrap_text=None, grid_color=None):
-        self._styles = {k: v for k, v in locals().items() if k != 'self' and v is not None}
+
+    def __init__(
+        self,
+        datatype=None,
+        colspan=None,
+        font=None,
+        fontsize=None,
+        bold=None,
+        italic=None,
+        underline=None,
+        strike=None,
+        color=None,
+        bgcolor=None,
+        align=None,
+        valign=None,
+        wrap_text=None,
+        grid_color=None,
+    ):
+        self._styles = {k: v for k, v in locals().items() if k != "self" and v is not None}
         self._hash = None
 
     def __str__(self):
-        s = ['Style:']
+        s = ["Style:"]
         for k in sorted(self._styles.keys()):
             v = self._styles[k]
-            if k in ('color', 'bgcolor', 'grid_color'):
-                v = '0x{:06x}'.format(v)
+            if k in ("color", "bgcolor", "grid_color"):
+                v = "0x{:06x}".format(v)
             elif isinstance(v, bool):
-                v = 'Y' if v else 'n'
+                v = "Y" if v else "n"
             elif isinstance(v, enum.Enum):
                 v = v.name
-            s.append('{}={}'.format(k.split('_')[0].capitalize(), v))
-        return ' '.join(s)
+            s.append("{}={}".format(k.split("_")[0].capitalize(), v))
+        return " ".join(s)
 
     def __repr__(self):
         return str(self)
@@ -66,13 +80,13 @@ class Style:
         """
         Returns the datatype set in this style, or ``None``.
         """
-        return self._styles.get('datatype')
+        return self._styles.get("datatype")
 
     def get_colspan(self):
         """
         Returns the colspan set in this style, or ``None``.
         """
-        return self._styles.get('colspan')
+        return self._styles.get("colspan")
 
     def get_style_dict(self):
         """
@@ -87,7 +101,7 @@ class Style:
         Returns ``True`` if there are not style elements defined in
         this instance.
         """
-        return (len(self._styles) == 0)
+        return len(self._styles) == 0
 
     def copy(self, **kwargs):
         """

@@ -15,7 +15,7 @@ def get_seo_metatags_admin_url(obj_url):
     for the SEO meta tags of the given URL.
     """
     obj_url = normalize_url(obj_url)
-    return reverse('seo_metatags_admin_redirect') + '?url=' + quote(obj_url)
+    return reverse("seo_metatags_admin_redirect") + "?url=" + quote(obj_url)
 
 
 def create_seo_metatags_admin_list_column(get_url_for_instance_fn=None):
@@ -31,7 +31,8 @@ def create_seo_metatags_admin_list_column(get_url_for_instance_fn=None):
     def _seo_link(self, obj):
         url = get_seo_metatags_admin_url(get_url_for_instance_fn(obj))
         return mark_safe('<a href="{}">SEO</a>'.format(escape(url)))
-    _seo_link.short_description = ''
+
+    _seo_link.short_description = ""
 
     return _seo_link
 
@@ -39,20 +40,24 @@ def create_seo_metatags_admin_list_column(get_url_for_instance_fn=None):
 @admin.register(MetaTags)
 class MetaTagsAdmin(admin.ModelAdmin):
     # List
-    list_display = ('url', 'title', 'description', 'keywords', 'footer_text')
-    list_display_links = ('url',)
-    search_fields = ('url', 'title',)
-    ordering = ('url',)
+    list_display = ("url", "title", "description", "keywords", "footer_text")
+    list_display_links = ("url",)
+    search_fields = (
+        "url",
+        "title",
+    )
+    ordering = ("url",)
 
 
 @admin.register(Redirect)
 class RedirectAdmin(admin.ModelAdmin):
     # List
-    list_display = ('url', 'target_url', 'is_permanent', 'with_query_string')
-    list_display_links = ('url',)
-    search_fields = ('url', 'target_url',)
-    ordering = ('url',)
+    list_display = ("url", "target_url", "is_permanent", "with_query_string")
+    list_display_links = ("url",)
+    search_fields = (
+        "url",
+        "target_url",
+    )
+    ordering = ("url",)
 
-    formfield_overrides = {
-        models.TextField: {'widget': admin.widgets.AdminTextInputWidget}
-    }
+    formfield_overrides = {models.TextField: {"widget": admin.widgets.AdminTextInputWidget}}

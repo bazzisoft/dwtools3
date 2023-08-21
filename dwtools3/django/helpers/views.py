@@ -8,6 +8,7 @@ def redirect_view(to, *args, **kwargs):
     """
     Returns a view function for redirecting to an arbitrary URL.
     """
+
     def view_func(request):
         return redirect(to, *args, **kwargs)
 
@@ -23,7 +24,8 @@ def template_view(template, *args, **kwargs):
 
         url(r'^500/$', template_view('500.html', no_context=True)),
     """
-    no_context = kwargs.pop('no_context', False)
+    no_context = kwargs.pop("no_context", False)
+
     def view_func(request):
         req = None if no_context else request
         return render(req, template, *args, **kwargs)

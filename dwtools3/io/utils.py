@@ -3,7 +3,7 @@ import codecs
 import pprint
 
 
-def create_console_string_writer(stream=None, encoding='utf-8'):
+def create_console_string_writer(stream=None, encoding="utf-8"):
     """
     Creates a StreamWriter object that writes strings to the
     specified console stream, with the given encoding.
@@ -15,7 +15,7 @@ def create_console_string_writer(stream=None, encoding='utf-8'):
     return codecs.getwriter(encoding)(stream.buffer)
 
 
-def pprint_unicode_to_console(s, end='\n'):
+def pprint_unicode_to_console(s, end="\n"):
     writer = create_console_string_writer()
     writer.write(pprint.pformat(s, indent=2))
     if end:

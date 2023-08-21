@@ -38,9 +38,10 @@ class _SettingsProxyMetaclass(type):
     specified in the class are replaced with those from
     the Django settings file.
     """
+
     def __new__(mcs, name, bases, dct):
-        for (k, v) in dct.items():
-            if not k.startswith('_'):
+        for k, v in dct.items():
+            if not k.startswith("_"):
                 dct[k] = getattr(django_settings, k, v)
 
         return type.__new__(mcs, name, bases, dct)
@@ -55,5 +56,6 @@ class SettingsProxy(metaclass=_SettingsProxyMetaclass):
 
     Note you may not construct instances of this class.
     """
+
     def __init__(self):
-        raise RuntimeError('Cannot create instances of SettingsProxy.')
+        raise RuntimeError("Cannot create instances of SettingsProxy.")

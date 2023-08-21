@@ -10,6 +10,7 @@ class ExcelDictWriter(ExcelWriter):
 
     :param list field_names: A list of fields to write for each row.
     """
+
     def __init__(self, filename_or_stream, field_names):
         super().__init__(filename_or_stream)
         self._field_names = tuple(field_names)

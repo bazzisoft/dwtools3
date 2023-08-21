@@ -18,6 +18,7 @@ class StrippedCharField(models.CharField):
     """
     Regular ``CharField`` but stripped of leading/trailing whitespace.
     """
+
     description = _("String stripped of whitespace (up to %(max_length)s)")
 
     def to_python(self, value):
@@ -29,6 +30,7 @@ class StrippedTextField(models.TextField):
     """
     Regular ``TextField`` but stripped of leading/trailing whitespace.
     """
+
     description = _("Text stripped of whitespace")
 
     def to_python(self, value):
@@ -44,23 +46,24 @@ class SeparatedValuesField(models.TextField):
     """
     A textfield containing a list of values, separated by a delimiter.
     """
+
     description = _("A list of values separated by a delimiter")
 
-    def __init__(self, delimiter=',', *args, **kwargs):
+    def __init__(self, delimiter=",", *args, **kwargs):
         self.delimiter = delimiter
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         # Only include kwarg if it's not the default
-        if self.delimiter != ',':
-            kwargs['delimiter'] = self.delimiter
+        if self.delimiter != ",":
+            kwargs["delimiter"] = self.delimiter
         return name, path, args, kwargs
 
     def _parse_value(self, value):
         if value is None:
             return None
-        elif value == '':
+        elif value == "":
             return []
         else:
             return value.split(self.delimiter)
@@ -94,27 +97,29 @@ class SeparatedValuesField(models.TextField):
             for v in value:
                 if v not in choice_keys:
                     raise ValidationError(
-                        self.error_messages['invalid_choice'],
-                        code='invalid_choice',
-                        params={'value': repr(v)},
+                        self.error_messages["invalid_choice"],
+                        code="invalid_choice",
+                        params={"value": repr(v)},
                     )
 
         if value is None and not self.null:
-            raise ValidationError(self.error_messages['null'], code='null')
+            raise ValidationError(self.error_messages["null"], code="null")
 
         if not self.blank and value in self.empty_values:
-            raise ValidationError(self.error_messages['blank'], code='blank')
+            raise ValidationError(self.error_messages["blank"], code="blank")
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': forms.CharField,
-                    'choices_form_class': forms.TypedMultipleChoiceField,
-                    'coerce': lambda x: x}
+        defaults = {
+            "form_class": forms.CharField,
+            "choices_form_class": forms.TypedMultipleChoiceField,
+            "coerce": lambda x: x,
+        }
         if self.choices:
-            defaults['widget'] = forms.SelectMultiple
+            defaults["widget"] = forms.SelectMultiple
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
     def get_choices(self, *args, **kwargs):
         kwargs = kwargs.copy()
-        kwargs['include_blank'] = False
+        kwargs["include_blank"] = False
         return super().get_choices(*args, **kwargs)

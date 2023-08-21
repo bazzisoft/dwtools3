@@ -18,16 +18,21 @@ def default_list_filter(callable=None, **default_filters):
     Can also pass a single `callable` function which takes `request` and returns a dict
     of filter parameters.
     """
+
     def decorator(cls):
-        old_changelist_view = getattr(cls, 'changelist_view')
+        old_changelist_view = getattr(cls, "changelist_view")
+
         def new_changelist_view(self, request, *args, **kwargs):
-            if urlsplit(request.META.get('HTTP_REFERER', '')).path != request.path and \
-                    not request.META.get('QUERY_STRING'):
+            if urlsplit(
+                request.META.get("HTTP_REFERER", "")
+            ).path != request.path and not request.META.get("QUERY_STRING"):
                 filters = callable(request) if callable else default_filters
                 print(filters)
                 if filters:
-                    return redirect('{}?{}'.format(request.path, urlencode(filters)))
+                    return redirect("{}?{}".format(request.path, urlencode(filters)))
             return old_changelist_view(self, request, *args, **kwargs)
-        setattr(cls, 'changelist_view', new_changelist_view)
+
+        setattr(cls, "changelist_view", new_changelist_view)
         return cls
+
     return decorator

@@ -15,6 +15,7 @@ class ReportDefinition:
     of precedence is: Individual cell styles, row styles, column styles
     and finally the default style.
     """
+
     def __init__(self):
         self.empty_style = Style()
         self.default_style = self.empty_style
@@ -60,11 +61,11 @@ class ReportDefinition:
         :param OutputType output_type: The output type we're going to write.
         """
         if output_type in (OutputType.EXCEL,):
-            return open(filename, 'wb')
+            return open(filename, "wb")
         elif output_type in (OutputType.CSV,):
-            return open(filename, 'w', newline='', encoding='utf-8')
+            return open(filename, "w", newline="", encoding="utf-8")
         else:
-            return open(filename, 'w', encoding='utf-8')
+            return open(filename, "w", encoding="utf-8")
 
     def create_writer(self, filename_or_stream, output_type):
         """
@@ -93,14 +94,16 @@ class ReportDefinition:
         elif output_type == OutputType.HTML_FULL_PAGE:
             return HTMLReportWriter(self, stream, close_stream, full_page=True)
         else:
-            assert False, 'Invalid output type {}'.format(output_type)
+            assert False, "Invalid output type {}".format(output_type)
 
     def list_fields(self, exclude_datatypes=None):
         """
         Returns a list of all column field names defined.
         """
         exclude_datatypes = set(exclude_datatypes) if exclude_datatypes else set()
-        return [c.field_name for c in self.columns if c.colstyle.get_datatype() not in exclude_datatypes]
+        return [
+            c.field_name for c in self.columns if c.colstyle.get_datatype() not in exclude_datatypes
+        ]
 
     def list_fields_for_writer(self, writer):
         """

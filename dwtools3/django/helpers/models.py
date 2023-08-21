@@ -12,13 +12,14 @@ from django.utils.translation import ugettext_lazy as _
 
 
 # Add 'order_within_fields' meta option to django
-models.options.DEFAULT_NAMES = models.options.DEFAULT_NAMES + ('order_within_fields',)
+models.options.DEFAULT_NAMES = models.options.DEFAULT_NAMES + ("order_within_fields",)
 
 
 class OrderedModelManager(models.Manager):
     """
     Model manager for models that inherit from ``OrderedModel``.
     """
+
     def _get_ordered_id_list_and_current_index(self, item_or_id):
         """
         Returns the specified item, a list of all IDs in correct order
@@ -26,9 +27,10 @@ class OrderedModelManager(models.Manager):
         item was in the list.
         """
         item = item_or_id if isinstance(item_or_id, OrderedModel) else self.get(id=item_or_id)
-        assert item.id, 'Cannot order unsaved items.'
-        id_list = list(self.filter(**item.get_order_within_fields_filters())
-                       .values_list('id', flat=True))
+        assert item.id, "Cannot order unsaved items."
+        id_list = list(
+            self.filter(**item.get_order_within_fields_filters()).values_list("id", flat=True)
+        )
 
         try:
             current_idx = id_list.index(item.id)
@@ -75,15 +77,16 @@ class OrderedModelManager(models.Manager):
 
         # No room left? Rebalance all ordering values & run recursively
         if post_ordering - pre_ordering <= 1:
-            self.rebalance_ordering(models_to_update=[item],
-                                    **item.get_order_within_fields_filters())
+            self.rebalance_ordering(
+                models_to_update=[item], **item.get_order_within_fields_filters()
+            )
             self._move_item_to_index(item, id_list, new_idx)
             return
 
         # We have room, set item.ordering to the mid-point of pre and post
         # then save.
         item.ordering = (pre_ordering + post_ordering) // 2
-        item.save(update_fields=['ordering'])
+        item.save(update_fields=["ordering"])
 
     def moveup(self, item_or_id):
         """
@@ -139,7 +142,7 @@ class OrderedModelManager(models.Manager):
                 else:
                     new_idx = to_idx + 1
             except ValueError:
-                assert False, 'Cannot reorder items with different `order_within_fields` values.'
+                assert False, "Cannot reorder items with different `order_within_fields` values."
         else:
             new_idx = len(id_list)
 
@@ -163,7 +166,7 @@ class OrderedModelManager(models.Manager):
         next_ordering = 100
         for item in self.filter(**order_within_field_values):
             item.ordering = next_ordering
-            item.save(update_fields=['ordering'])
+            item.save(update_fields=["ordering"])
             if item.id in models_to_update:
                 models_to_update[item.id].ordering = next_ordering
             next_ordering += 100
@@ -197,13 +200,14 @@ class OrderedModel(models.Model):
     You may optional set a ``unique_together`` constraint for
     all ``order_within_fields`` plus ``ordering``.
     """
+
     ordering = models.PositiveIntegerField(blank=True, db_index=True)
 
     objects = OrderedModelManager()
 
     class Meta:
         abstract = True
-        ordering = ('ordering',)
+        ordering = ("ordering",)
         order_within_fields = ()
 
     @classmethod
@@ -217,8 +221,8 @@ class OrderedModel(models.Model):
         if not self.id:
             if self.ordering is None:
                 filters = self.get_order_within_fields_filters()
-                maximum = self.__class__.objects.filter(**filters).aggregate(Max('ordering'))
-                self.ordering = (maximum['ordering__max'] or 0) + 100
+                maximum = self.__class__.objects.filter(**filters).aggregate(Max("ordering"))
+                self.ordering = (maximum["ordering__max"] or 0) + 100
         super().save(*args, **kwargs)
 
 
@@ -227,6 +231,7 @@ class TimestampedModel(models.Model):
     Abstract model that includes ``created_at`` and ``modified_at``
     auto-updating fields.
     """
+
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
@@ -234,9 +239,14 @@ class TimestampedModel(models.Model):
         abstract = True
 
 
-def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_conditions=None,
-                                          error_message=None, error_field=None,
-                                          case_insensitive=False):
+def check_model_is_unique_with_conditions(
+    model_instance,
+    unique_fields,
+    qs_conditions=None,
+    error_message=None,
+    error_field=None,
+    case_insensitive=False,
+):
     """
     Checks the given model instance is unique with respect to ``unique_fields``.
 
@@ -259,8 +269,10 @@ def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_cond
             check_model_unique_with_conditions(self, ('name', 'type'), {'is_active': True})
     """
     model = type(model_instance)
-    filter_kwargs = {(f + ('__iexact' if case_insensitive else '')): getattr(model_instance, f)
-                     for f in unique_fields}
+    filter_kwargs = {
+        (f + ("__iexact" if case_insensitive else "")): getattr(model_instance, f)
+        for f in unique_fields
+    }
     if qs_conditions is not None:
         filter_kwargs.update(qs_conditions)
     qs = model.objects.filter(**filter_kwargs)
@@ -272,8 +284,8 @@ def check_model_is_unique_with_conditions(model_instance, unique_fields, qs_cond
         if error_message is None:
             model_name = str(model._meta.verbose_name)
             field_labels = [model._meta.get_field(f).verbose_name for f in unique_fields]
-            field_labels = str(get_text_list(field_labels, _('and')))
-            error_message = _('A {} with this {} already exists.').format(model_name, field_labels)
+            field_labels = str(get_text_list(field_labels, _("and")))
+            error_message = _("A {} with this {} already exists.").format(model_name, field_labels)
         if error_field is None:
             raise ValidationError(error_message)
         else:
@@ -295,12 +307,12 @@ def check_exactly_one_field_is_not_none(model_instance, fields, error_message=No
     non_none = [1 for f in fields if getattr(model_instance, f) is not None]
     if len(non_none) != 1:
         if not error_message:
-            field_str = ', '.join(fields[:-1]) + ' and ' + fields[-1]
-            error_message = _('Exactly one of {} must be specified.').format(field_str)
+            field_str = ", ".join(fields[:-1]) + " and " + fields[-1]
+            error_message = _("Exactly one of {} must be specified.").format(field_str)
         raise ValidationError(error_message)
 
 
-def unique_slugify(instance, value, slug_field_name='slug', queryset=None, slug_separator='-'):
+def unique_slugify(instance, value, slug_field_name="slug", queryset=None, slug_separator="-"):
     """
     Automatically create a unique slug for a model.
 
@@ -347,17 +359,17 @@ def unique_slugify(instance, value, slug_field_name='slug', queryset=None, slug_
     nextdigit = 2
     while not slug or queryset.filter(**{slug_field_name: slug}):
         slug = original_slug
-        end = '%s%s' % (slug_separator, nextdigit)
+        end = "%s%s" % (slug_separator, nextdigit)
         if slug_len and len(slug) + len(end) > slug_len:
-            slug = slug[:slug_len - len(end)]
+            slug = slug[: slug_len - len(end)]
             slug = _slug_strip(slug, slug_separator)
-        slug = '%s%s' % (slug, end)
+        slug = "%s%s" % (slug, end)
         nextdigit += 1
 
     setattr(instance, slug_field.attname, slug)
 
 
-def _slug_strip(value, separator='-'):
+def _slug_strip(value, separator="-"):
     """
     Cleans up a slug by removing slug separator characters that occur at the
     beginning or end of a slug.
@@ -365,18 +377,18 @@ def _slug_strip(value, separator='-'):
     If an alternate separator is used, it will also replace any instances of
     the default '-' separator with the new separator.
     """
-    separator = separator or ''
-    if separator == '-' or not separator:
-        re_sep = '-'
+    separator = separator or ""
+    if separator == "-" or not separator:
+        re_sep = "-"
     else:
-        re_sep = '(?:-|%s)' % re.escape(separator)
+        re_sep = "(?:-|%s)" % re.escape(separator)
         # Remove multiple instances and if an alternate separator is provided,
     # replace the default '-' separator.
     if separator != re_sep:
-        value = re.sub('%s+' % re_sep, separator, value)
+        value = re.sub("%s+" % re_sep, separator, value)
         # Remove separator from the beginning and end of the slug.
     if separator:
-        if separator != '-':
+        if separator != "-":
             re_sep = re.escape(separator)
-        value = re.sub(r'^%s+|%s+$' % (re_sep, re_sep), '', value)
+        value = re.sub(r"^%s+|%s+$" % (re_sep, re_sep), "", value)
     return value

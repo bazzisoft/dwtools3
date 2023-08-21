@@ -7,3 +7,4 @@ pylint
 requests~=2.27
 simple-salesforce~=1.11
 twine
+black

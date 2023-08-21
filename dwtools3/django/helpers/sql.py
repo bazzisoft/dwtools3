@@ -20,6 +20,7 @@ Usage
 """
 from django.db import connections, connection as django_default_connection
 
+
 class RawSQLBuilder:
     def __init__(self, connection=None):
         if isinstance(connection, str):
@@ -38,7 +39,7 @@ class RawSQLBuilder:
                 self._params.extend(params)
 
     def get_sql(self):
-        return ('\n'.join(self._sql_parts), self._params)
+        return ("\n".join(self._sql_parts), self._params)
 
     def execute(self):
         cursor = self._connection.cursor()
@@ -53,13 +54,9 @@ class RawSQLBuilder:
     @staticmethod
     def dictfetchall(cursor):
         desc = cursor.description
-        return [
-            dict(zip([col[0] for col in desc], row))
-            for row in cursor.fetchall()
-        ]
+        return [dict(zip([col[0] for col in desc], row)) for row in cursor.fetchall()]
 
     @staticmethod
     def dictfetchalliter(cursor):
         desc = cursor.description
-        return (dict(zip([col[0] for col in desc], row))
-                for row in cursor)
+        return (dict(zip([col[0] for col in desc], row)) for row in cursor)

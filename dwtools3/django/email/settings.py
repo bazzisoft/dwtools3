@@ -7,8 +7,7 @@ from ..helpers import SettingsProxy
 
 
 class EmailSettings(SettingsProxy):
-    """
-    """
+    """ """
 
     EMAIL_EXTRA_TEMPLATE_CONTEXT = None
     """

@@ -8,9 +8,11 @@ from datetime import timedelta
 from django.core.exceptions import ValidationError
 
 
-TIME_FORMAT = (r"(?:(?P<weeks>\d+)\W*(?:weeks?|w),?)?\W*(?:(?P<days>\d+)\W*(?:days?|d),?)?\W*"
-               r"(?:(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<seconds>\d+)"
-               r"(?:\.(?P<microseconds>\d+))?)?)?")
+TIME_FORMAT = (
+    r"(?:(?P<weeks>\d+)\W*(?:weeks?|w),?)?\W*(?:(?P<days>\d+)\W*(?:days?|d),?)?\W*"
+    r"(?:(?P<hours>\d+):(?P<minutes>\d+)(?::(?P<seconds>\d+)"
+    r"(?:\.(?P<microseconds>\d+))?)?)?"
+)
 TIME_FORMAT_RE = re.compile(TIME_FORMAT)
 
 
@@ -49,7 +51,7 @@ def str_to_timedelta(td_str):
             time_groups[key] = 0
 
     if not is_valid:
-        raise ValidationError(u"Invalid timedelta string, '{0}'".format(td_str))
+        raise ValidationError("Invalid timedelta string, '{0}'".format(td_str))
 
     time_groups["days"] = time_groups["days"] + (time_groups["weeks"] * 7)
 
@@ -58,7 +60,7 @@ def str_to_timedelta(td_str):
         hours=time_groups["hours"],
         minutes=time_groups["minutes"],
         seconds=time_groups["seconds"],
-        microseconds=time_groups["microseconds"]
+        microseconds=time_groups["microseconds"],
     )
 
 
@@ -67,10 +69,10 @@ def format_duration_hhmm(d):
     Utility function to format durations in the widget as hh:mm
     """
     if d is None:
-        return ''
+        return ""
     elif isinstance(d, str):
         return d
 
     hours = d.days * 24 + d.seconds // 3600
     minutes = int(round((d.seconds % 3600) / 60))
-    return '{}:{:02}'.format(hours, minutes)
+    return "{}:{:02}".format(hours, minutes)

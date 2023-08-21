@@ -10,14 +10,18 @@ class Win32LockFile(LockFileBase):
     def __init__(self, *args, **kwargs):
         super(Win32LockFile, self).__init__(*args, **kwargs)
         self.fd = None
-        self.delete_lock_file = kwargs.pop('delete_lock_file', True)
+        self.delete_lock_file = kwargs.pop("delete_lock_file", True)
 
     def _do_acquire(self, path, timeout):
-        opts = win32con.LOCKFILE_EXCLUSIVE_LOCK if timeout < 0 else (win32con.LOCKFILE_EXCLUSIVE_LOCK | win32con.LOCKFILE_FAIL_IMMEDIATELY)
+        opts = (
+            win32con.LOCKFILE_EXCLUSIVE_LOCK
+            if timeout < 0
+            else (win32con.LOCKFILE_EXCLUSIVE_LOCK | win32con.LOCKFILE_FAIL_IMMEDIATELY)
+        )
         end = time.time() + timeout
 
         while True:
-            self.fd = open(path, 'a+b')
+            self.fd = open(path, "a+b")
             hfile = win32file._get_osfhandle(self.fd.fileno())
 
             try:
@@ -28,7 +32,7 @@ class Win32LockFile(LockFileBase):
                 self.fd = None
 
             if timeout == 0 or time.time() > end:
-                raise LockFileTimeout('Unable to acquire lock file {}'.format(path))
+                raise LockFileTimeout("Unable to acquire lock file {}".format(path))
 
             time.sleep(timeout / 10 or 0.1)
 
@@ -45,9 +49,8 @@ class Win32LockFile(LockFileBase):
 
     def _write_pid(self):
         pid = os.getpid()
-        #print('writing pid {}'.format(pid))
+        # print('writing pid {}'.format(pid))
         self.fd.truncate(0)
-        self.fd.write(str(pid).encode('ascii'))
+        self.fd.write(str(pid).encode("ascii"))
         self.fd.flush()
         return True
-

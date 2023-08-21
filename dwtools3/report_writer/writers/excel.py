@@ -15,15 +15,21 @@ class ExcelReportWriter(IReportWriter):
 
         with open(path, 'wb') as f:
     """
+
     def __init__(self, definition, stream, close_stream):
         super().__init__(definition, stream, close_stream)
-        self.writer = ExcelDictWriter(stream, self.definition.list_fields(exclude_datatypes=self.list_excluded_datatypes()))
+        self.writer = ExcelDictWriter(
+            stream, self.definition.list_fields(exclude_datatypes=self.list_excluded_datatypes())
+        )
         self.style_cache = {}
         self.format_cache = {d: self._create_excel_number_format(d) for d in DataType}
-        self.column_styles = {c.field_name: Style.combine(self.definition.default_style, c.colstyle)
-                              for c in self.definition.columns}
-        self.column_excel_styles = {f: self._get_excel_style(s)
-                                    for f, s in self.column_styles.items()}
+        self.column_styles = {
+            c.field_name: Style.combine(self.definition.default_style, c.colstyle)
+            for c in self.definition.columns
+        }
+        self.column_excel_styles = {
+            f: self._get_excel_style(s) for f, s in self.column_styles.items()
+        }
 
         for column in self.definition.columns:
             if column.width is not None:
@@ -49,9 +55,14 @@ class ExcelReportWriter(IReportWriter):
             return self.column_excel_styles
         else:
             styledict = styledict or {}
-            return {c.field_name: self._get_excel_style(Style.combine(self.column_styles[c.field_name],
-                                                                      rowstyle, styledict.get(c.field_name)))
-                    for c in self.definition.columns}
+            return {
+                c.field_name: self._get_excel_style(
+                    Style.combine(
+                        self.column_styles[c.field_name], rowstyle, styledict.get(c.field_name)
+                    )
+                )
+                for c in self.definition.columns
+            }
 
     def _get_excel_style(self, style):
         hash = style.get_hash()
@@ -64,13 +75,13 @@ class ExcelReportWriter(IReportWriter):
             return None
 
         kwargs = style.get_style_dict().copy()
-        datatype = kwargs.pop('datatype', None)
-        if 'align' in kwargs:
-            kwargs['align'] = kwargs['align'].value
-        if 'valign' in kwargs:
-            kwargs['valign'] = kwargs['valign'].value.replace('middle', ExcelStyle.VALIGN_MIDDLE)
+        datatype = kwargs.pop("datatype", None)
+        if "align" in kwargs:
+            kwargs["align"] = kwargs["align"].value
+        if "valign" in kwargs:
+            kwargs["valign"] = kwargs["valign"].value.replace("middle", ExcelStyle.VALIGN_MIDDLE)
         if datatype is not None:
-            kwargs['number_format'] = self.format_cache[datatype]
+            kwargs["number_format"] = self.format_cache[datatype]
 
         return ExcelStyle(**kwargs)
 
@@ -79,29 +90,38 @@ class ExcelReportWriter(IReportWriter):
             return self.definition.formatter.format(datatype, 0)
         elif datatype == DataType.INT:
             v = self.definition.formatter.format_int(1234)
-            return '#,##0' if ',' in v else '0'
+            return "#,##0" if "," in v else "0"
         elif datatype == DataType.FLOAT:
             v = self.definition.formatter.format_float(1234.12345)
-            head = '#,##0.' if ',' in v else '0.'
-            tail = '0' * len(v.split('.')[1])
+            head = "#,##0." if "," in v else "0."
+            tail = "0" * len(v.split(".")[1])
             return head + tail
         elif datatype == DataType.BOOL:
             n = self.definition.formatter.format_bool(False)
             y = self.definition.formatter.format_bool(True)
-            return '&quot;{}&quot;;&quot;{}&quot;;&quot;{}&quot;'.format(y, y, n)
+            return "&quot;{}&quot;;&quot;{}&quot;;&quot;{}&quot;".format(y, y, n)
         elif datatype in (DataType.DATE, DataType.DATETIME):
             return self._create_excel_date_format(datatype)
         else:
-            return 'General'
+            return "General"
 
     def _create_excel_date_format(self, datatype):
         val = self.definition.formatter.format(datatype, datetime(2022, 4, 5, 7, 8, 9)).lower()
-        val = (val.replace('2022', 'yyyy').replace('22', 'yy')
-                  .replace('april', 'mmmm').replace('apr', 'mmm')
-                  .replace('04', 'mm').replace('4', 'm')
-                  .replace('05', 'dd').replace('5', 'd')
-                  .replace('07', 'hh').replace('7', 'h')
-                  .replace('08', 'mm').replace('8', 'm')
-                  .replace('09', 'ss').replace('9', 's'))
-        val = re.sub(r'(am)|(pm)|(AM)|(PM)', 'AM/PM', val)
+        val = (
+            val.replace("2022", "yyyy")
+            .replace("22", "yy")
+            .replace("april", "mmmm")
+            .replace("apr", "mmm")
+            .replace("04", "mm")
+            .replace("4", "m")
+            .replace("05", "dd")
+            .replace("5", "d")
+            .replace("07", "hh")
+            .replace("7", "h")
+            .replace("08", "mm")
+            .replace("8", "m")
+            .replace("09", "ss")
+            .replace("9", "s")
+        )
+        val = re.sub(r"(am)|(pm)|(AM)|(PM)", "AM/PM", val)
         return val

@@ -13,18 +13,19 @@ from ...datatypes import EnumX
 from .settings import AuthXSettings
 
 
-KEY_SALT = 'dwtools3.django.authx.api.user_login_hash'
+KEY_SALT = "dwtools3.django.authx.api.user_login_hash"
 
 
 class LoginResult(EnumX):
     """
     Enumeration for ``login()`` return values.
     """
-    OK = 'Ok'
-    NO_SUCH_USER = 'No such user'
-    INCORRECT_PASSWORD = 'Incorrect password'
-    ACCOUNT_INACTIVE = 'Account inactive'
-    EMAIL_NOT_VERIFIED = 'Email not verified'
+
+    OK = "Ok"
+    NO_SUCH_USER = "No such user"
+    INCORRECT_PASSWORD = "Incorrect password"
+    ACCOUNT_INACTIVE = "Account inactive"
+    EMAIL_NOT_VERIFIED = "Email not verified"
 
 
 def authenticate(username, password):
@@ -54,11 +55,11 @@ def login(request, uid=None, username=None, password=None, skip_authentication=F
     """
     # Verify parameters
     if uid is None and username is None:
-        raise ValueError(_('One of uid or username must be specified.'))
+        raise ValueError(_("One of uid or username must be specified."))
     elif uid is not None and username is not None:
-        raise ValueError(_('Only one of uid or username must be specified.'))
+        raise ValueError(_("Only one of uid or username must be specified."))
     elif not skip_authentication and username is None:
-        raise ValueError(_('Username must be provided when authenticating with password.'))
+        raise ValueError(_("Username must be provided when authenticating with password."))
     elif not skip_authentication and password is None:
         return LoginResult.INCORRECT_PASSWORD
 
@@ -76,7 +77,7 @@ def login(request, uid=None, username=None, password=None, skip_authentication=F
     if skip_authentication:
         # Spoof the authenticate call
         backend = auth.get_backends()[0]
-        user.backend = '{}.{}'.format(backend.__module__, backend.__class__.__name__)
+        user.backend = "{}.{}".format(backend.__module__, backend.__class__.__name__)
     else:
         authenticated_user = auth.authenticate(username=username, password=password)
         if authenticated_user is None and not user.is_active:
@@ -117,7 +118,7 @@ def logout(request, keep_session=False):
         request.session.update(old_session)
 
 
-def create_single_use_login_hash(user, used_for='default'):
+def create_single_use_login_hash(user, used_for="default"):
     """
     Creates a hash that can be used to login or identify
     a user once (works until the next time the user logs in).
@@ -137,10 +138,10 @@ def create_single_use_login_hash(user, used_for='default'):
     token = default_token_generator.make_token(user)
     user.password = oldpass
 
-    return '{}+{}'.format(uidb64, token)
+    return "{}+{}".format(uidb64, token)
 
 
-def verify_single_use_login_hash(hash, used_for='default'):
+def verify_single_use_login_hash(hash, used_for="default"):
     """
     Verifies a single use login hash created by ``create_single_use_login_hash``,
     returning the user subclass if it is valid otherwise None.
@@ -154,7 +155,7 @@ def verify_single_use_login_hash(hash, used_for='default'):
     UserModel = get_user_model()
 
     try:
-        (uidb64, token) = hash.split('+', 1)
+        (uidb64, token) = hash.split("+", 1)
     except ValueError:
         return None
 
@@ -177,7 +178,7 @@ def verify_single_use_login_hash(hash, used_for='default'):
     return user
 
 
-def create_multi_use_login_hash(user, used_for='default'):
+def create_multi_use_login_hash(user, used_for="default"):
     """
     Creates a hash that can be used to login or identify
     a user multiple times (works until the user changes
@@ -192,10 +193,10 @@ def create_multi_use_login_hash(user, used_for='default'):
     value = user.username + user.password + used_for
     hash = salted_hmac(KEY_SALT, value).hexdigest()
     uidb64 = force_str(urlsafe_base64_encode(force_bytes(user.pk)))
-    return '{}+{}'.format(uidb64, hash)
+    return "{}+{}".format(uidb64, hash)
 
 
-def verify_multi_use_login_hash(hash, used_for='default'):
+def verify_multi_use_login_hash(hash, used_for="default"):
     """
     Verifies a multi use login hash created by ``create_multi_use_login_hash``,
     returning the user subclass if it is valid otherwise None.
@@ -209,7 +210,7 @@ def verify_multi_use_login_hash(hash, used_for='default'):
     UserModel = get_user_model()
 
     try:
-        (uidb64, hash) = hash.split('+', 1)
+        (uidb64, hash) = hash.split("+", 1)
     except ValueError:
         return None
 

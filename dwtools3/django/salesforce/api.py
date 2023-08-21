@@ -11,10 +11,10 @@ from .models import SyncQueueItem
 from .settings import SalesforceSettings
 
 
-#----------------------------
+# ----------------------------
 # Salesforce Logger
-#----------------------------
-logger = logging.getLogger('dwtools3.django.salesforce')
+# ----------------------------
+logger = logging.getLogger("dwtools3.django.salesforce")
 """
 Use this logger for any salesforce-related output, such as
 your salesforce processor functions. All log messages
@@ -22,31 +22,36 @@ are sent to the ``dwtools3.django.salesforce`` logger.
 """
 
 
-#----------------------------
+# ----------------------------
 # Salesforce Instance
-#----------------------------
+# ----------------------------
+
 
 def create_salesforce_instance():
     """
     Create a low-level simple-salesforce instance to query over the REST API.
     """
-    return Salesforce(username=SalesforceSettings.SALESFORCE_USERNAME,
-                      password=SalesforceSettings.SALESFORCE_PASSWORD,
-                      security_token=SalesforceSettings.SALESFORCE_SECURITY_TOKEN,
-                      domain='test' if SalesforceSettings.SALESFORCE_USE_SANDBOX else None,
-                      version=SalesforceSettings.SALESFORCE_API_VERSION or DEFAULT_API_VERSION)
+    return Salesforce(
+        username=SalesforceSettings.SALESFORCE_USERNAME,
+        password=SalesforceSettings.SALESFORCE_PASSWORD,
+        security_token=SalesforceSettings.SALESFORCE_SECURITY_TOKEN,
+        domain="test" if SalesforceSettings.SALESFORCE_USE_SANDBOX else None,
+        version=SalesforceSettings.SALESFORCE_API_VERSION or DEFAULT_API_VERSION,
+    )
 
 
 # Process-shared Salesforce instance from simple_salesforce
 sf = SimpleLazyObject(create_salesforce_instance)
 
 
-#----------------------------
+# ----------------------------
 # Sync Queue Management
-#----------------------------
+# ----------------------------
 
-def schedule_sync_function(func, params, scheduled_at=None,
-                           reschedule_on_error=None, prevent_repetition=False):
+
+def schedule_sync_function(
+    func, params, scheduled_at=None, reschedule_on_error=None, prevent_repetition=False
+):
     """
     Schedule a sync function to run in the future to update salesforce
     via the API.
@@ -61,14 +66,15 @@ def schedule_sync_function(func, params, scheduled_at=None,
 
     with transaction.atomic():
         if prevent_repetition:
-            (SyncQueueItem.objects
-             .filter(module=item.module, function=item.function, _params=item._params)
-             .delete())
+            (
+                SyncQueueItem.objects.filter(
+                    module=item.module, function=item.function, _params=item._params
+                ).delete()
+            )
 
         item.save()
 
-    logger.info('Salesforce: Scheduled function %s()',
-                item.function)
+    logger.info("Salesforce: Scheduled function %s()", item.function)
 
 
 def get_next_scheduled_sync_function(delay_secs=0):
@@ -80,10 +86,7 @@ def get_next_scheduled_sync_function(delay_secs=0):
     if delay_secs > 0:
         now -= timedelta(seconds=delay_secs)
 
-    item = (SyncQueueItem.objects
-            .filter(scheduled_at__lte=now)
-            .order_by('scheduled_at')
-            .first())
+    item = SyncQueueItem.objects.filter(scheduled_at__lte=now).order_by("scheduled_at").first()
 
     if item:
         SyncQueueItem.objects.filter(id=item.id).delete()
@@ -104,8 +107,7 @@ def reschedule_sync_function(item, delay_mins=None):
     item.full_clean()
     item.save(force_insert=True)
 
-    logger.info('Salesforce: Rescheduled function %s() in %s mins',
-                item.function, delay_mins)
+    logger.info("Salesforce: Rescheduled function %s() in %s mins", item.function, delay_mins)
 
 
 def run_sync_function(item):
@@ -116,17 +118,20 @@ def run_sync_function(item):
     try:
         func = getattr(module, item.function)
     except AttributeError:
-        raise AttributeError('Salesforce: Function "{}" not defined in module "{}".'
-                             .format(item.function, item.module))
+        raise AttributeError(
+            'Salesforce: Function "{}" not defined in module "{}".'.format(
+                item.function, item.module
+            )
+        )
 
     params = item.params
 
     if not SalesforceSettings.SALESFORCE_ENABLED:
-        logger.info('MOCKING: Salesforce: Running function %s(%s)',
-                    item.function, repr(item.params))
+        logger.info(
+            "MOCKING: Salesforce: Running function %s(%s)", item.function, repr(item.params)
+        )
     else:
-        logger.info('Salesforce: Running function %s()',
-                    item.function)
+        logger.info("Salesforce: Running function %s()", item.function)
 
         if isinstance(params, (list, tuple)):
             func(*params)

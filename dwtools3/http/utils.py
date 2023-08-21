@@ -4,9 +4,9 @@ import hashlib
 from .urlparser import URLParser
 
 
-_DEFAULT_SALT = 'F^u#?8idmR7G8~b=736cGnN3xz49YK=gpHu9n9?F8Ki?pG6J'
-_SIGNED_URL_RE = re.compile(r'^(.*)[\?\&]sig=(\w+)&expiry=(\d+)')
-_SCHEME_DOMAIN_RE = re.compile(r'^https?://[^/]+')
+_DEFAULT_SALT = "F^u#?8idmR7G8~b=736cGnN3xz49YK=gpHu9n9?F8Ki?pG6J"
+_SIGNED_URL_RE = re.compile(r"^(.*)[\?\&]sig=(\w+)&expiry=(\d+)")
+_SCHEME_DOMAIN_RE = re.compile(r"^https?://[^/]+")
 
 
 def modify_url_query_string(url=None, replace=None, delete=None):
@@ -24,7 +24,7 @@ def modify_url_query_string(url=None, replace=None, delete=None):
 
     if delete is not None:
         for k in delete:
-            parser.query.pop(k, '')
+            parser.query.pop(k, "")
 
     if replace is not None:
         parser.query.update(replace)
@@ -37,7 +37,7 @@ def hash_url(url, expiry, salt=None):
     Calculates the hash of a given URL with specified salt and expiry timestamp.
     """
     salt = salt or _DEFAULT_SALT
-    return hashlib.sha256('{}|{}|{}'.format(salt, url, expiry).encode('utf-8')).hexdigest()[::2]
+    return hashlib.sha256("{}|{}|{}".format(salt, url, expiry).encode("utf-8")).hexdigest()[::2]
 
 
 def sign_url(url, expiry_secs, salt=None):
@@ -47,8 +47,8 @@ def sign_url(url, expiry_secs, salt=None):
     """
     expiry = int(time.time()) + expiry_secs
     signature = hash_url(url, expiry, salt)
-    divider = '&' if '?' in url else '?'
-    return '{}{}sig={}&expiry={}'.format(url, divider, signature, expiry)
+    divider = "&" if "?" in url else "?"
+    return "{}{}sig={}&expiry={}".format(url, divider, signature, expiry)
 
 
 def verify_signed_url(url, salt=None):
@@ -73,8 +73,8 @@ def verify_signed_url(url, salt=None):
         return url
 
     # Try to match relative URL
-    if url.startswith('http'):
-        url = _SCHEME_DOMAIN_RE.sub('', url)
+    if url.startswith("http"):
+        url = _SCHEME_DOMAIN_RE.sub("", url)
         correct_signature = hash_url(url, expiry, salt)
         if signature == correct_signature:
             return url

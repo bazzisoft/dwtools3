@@ -15,18 +15,18 @@ class DurationInput(TextInput):
 
     def render(self, name, value, attrs=None, renderer=None):
         if value is None:
-            value = ''
+            value = ""
 
         extra_attrs = dict(self.attrs or {}, type=self.input_type, name=name)
         final_attrs = self.build_attrs(attrs, extra_attrs)
-        if value != '':
+        if value != "":
             # Only add the 'value' attribute if a value is non-empty.
             if isinstance(value, int):
                 value = timedelta(microseconds=value)
 
             # Otherwise, we've got a timedelta already
             if self.to_string_fn:
-                final_attrs['value'] = force_str(self.to_string_fn(value))
+                final_attrs["value"] = force_str(self.to_string_fn(value))
             else:
-                final_attrs['value'] = force_str(formats.localize_input(value))
-        return mark_safe('<input%s />' % flatatt(final_attrs))
+                final_attrs["value"] = force_str(formats.localize_input(value))
+        return mark_safe("<input%s />" % flatatt(final_attrs))

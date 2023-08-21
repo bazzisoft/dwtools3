@@ -1,5 +1,3 @@
-
-
 class IReportWriter:
     """
     Interface for all writers that can be used to render
@@ -8,6 +6,7 @@ class IReportWriter:
     This class is a context manager and so is meant to be
     used with the ``with`` statement.
     """
+
     def __init__(self, definition, stream, close_stream):
         self.stream = stream
         self.close_stream = close_stream
@@ -62,4 +61,3 @@ class IReportWriter:
         """
         if self.close_stream:
             self.stream.close()
-

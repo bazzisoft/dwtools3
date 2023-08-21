@@ -9,8 +9,9 @@ from django.core.exceptions import ValidationError
 from .settings import AuthXSettings
 
 
-def validate_username(username, user_id=None, message=None,
-                      case_insensitive=True, error_field=None):
+def validate_username(
+    username, user_id=None, message=None, case_insensitive=True, error_field=None
+):
     """
     Validates the specified username is not already in use by another user.
 
@@ -28,17 +29,17 @@ def validate_username(username, user_id=None, message=None,
     """
     if message is None:
         if user_id is None:
-            message = _('This email already exists, perhaps try recovering your password?')
+            message = _("This email already exists, perhaps try recovering your password?")
         else:
-            message = _('This email address is not available.')
+            message = _("This email address is not available.")
 
     UserModel = get_user_model()
     try:
         qs = UserModel.objects.all()
         if user_id:
             qs = qs.exclude(id=user_id)
-        cmp = 'iexact' if case_insensitive else 'exact'
-        flt = {'username__' + cmp: username}
+        cmp = "iexact" if case_insensitive else "exact"
+        flt = {"username__" + cmp: username}
         qs.get(**flt)
 
         if error_field:
@@ -60,8 +61,9 @@ def validate_password(password, message=None, error_field=None):
         ``ValidationError``. By default a string message with no field is passed
         to the ``ValidationError`` instance.
     """
-    message = (message or _('Password must contain at least {} characters.')
-               .format(AuthXSettings.AUTHX_MINIMUM_PASSWORD_LENGTH))
+    message = message or _("Password must contain at least {} characters.").format(
+        AuthXSettings.AUTHX_MINIMUM_PASSWORD_LENGTH
+    )
     if len(password) and len(password) < AuthXSettings.AUTHX_MINIMUM_PASSWORD_LENGTH:
         if error_field:
             raise ValidationError({error_field: [message]})
@@ -79,7 +81,7 @@ def validate_confirm_password(password, confirm_password, message=None, error_fi
         ``ValidationError``. By default a string message with no field is passed
         to the ``ValidationError`` instance.
     """
-    message = message or _('Confirmation did not match password.')
+    message = message or _("Confirmation did not match password.")
     if len(confirm_password) and password != confirm_password:
         if error_field:
             raise ValidationError({error_field: [message]})
@@ -87,8 +89,9 @@ def validate_confirm_password(password, confirm_password, message=None, error_fi
             raise ValidationError(message)
 
 
-def validate_username_on_form(form, username_field, user_id=None,
-                              message=None, case_insensitive=True):
+def validate_username_on_form(
+    form, username_field, user_id=None, message=None, case_insensitive=True
+):
     """
     Validates the specified ``username_field`` on ``form`` is not already in use
     by another user.
@@ -101,7 +104,7 @@ def validate_username_on_form(form, username_field, user_id=None,
     ``case_insensitive`` indicates whether to perform case-insensitive username
         matching (default: ``True``)
     """
-    username = form.cleaned_data.get(username_field, '')
+    username = form.cleaned_data.get(username_field, "")
 
     try:
         validate_username(username, user_id, message, case_insensitive)
@@ -116,7 +119,7 @@ def validate_password_on_form(form, password_field, message=None):
 
     ``message`` is the error message to display if invalid.
     """
-    password = form.cleaned_data.get(password_field, '')
+    password = form.cleaned_data.get(password_field, "")
     try:
         validate_password(password, message)
     except ValidationError as e:
@@ -129,8 +132,8 @@ def validate_confirm_password_on_form(form, password_field, confirm_field, messa
 
     ``message`` is the error message to display if they don't.
     """
-    password = form.cleaned_data.get(password_field, '')
-    confirm = form.cleaned_data.get(confirm_field, '')
+    password = form.cleaned_data.get(password_field, "")
+    confirm = form.cleaned_data.get(confirm_field, "")
     try:
         validate_confirm_password(password, confirm, message)
     except ValidationError as e:

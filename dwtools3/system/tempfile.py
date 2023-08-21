@@ -24,14 +24,25 @@ class CompatNamedTemporaryFile(object):
     ``NamedTemporaryFile`` for this in a ``try...finally`` block to unlink
     the file at the end.
     """
-    def __init__(self, mode='w+b', buffering=-1, encoding=None, newline=None,
-                 suffix='', prefix='tmp', dir=None, delete=True):
-        self._tmpfile = NamedTemporaryFile(mode, buffering, encoding, newline,
-                                           suffix, prefix, dir, delete=False)
+
+    def __init__(
+        self,
+        mode="w+b",
+        buffering=-1,
+        encoding=None,
+        newline=None,
+        suffix="",
+        prefix="tmp",
+        dir=None,
+        delete=True,
+    ):
+        self._tmpfile = NamedTemporaryFile(
+            mode, buffering, encoding, newline, suffix, prefix, dir, delete=False
+        )
         self._tmpfile.close()
         self._created_at = time.time()
         self._name = self._tmpfile.name
-        self._mode = 'r+b' if mode.endswith('b') else 'r+'
+        self._mode = "r+b" if mode.endswith("b") else "r+"
         self._buffering = buffering
         self._encoding = encoding
         self._newline = newline
@@ -46,8 +57,13 @@ class CompatNamedTemporaryFile(object):
 
     def _reopen(self, at_end=False):
         if self._fd is None:
-            self._fd = open(self._tmpfile.name, self._mode, buffering=self._buffering,
-                            encoding=self._encoding, newline=self._newline)
+            self._fd = open(
+                self._tmpfile.name,
+                self._mode,
+                buffering=self._buffering,
+                encoding=self._encoding,
+                newline=self._newline,
+            )
             if at_end:
                 self._fd.seek(0, io.SEEK_END)
         return self._fd
@@ -102,8 +118,10 @@ class CompatNamedTemporaryFile(object):
 
         try:
             t = time.time() - age
-            while (len(_compat_named_temporary_file_list) and
-                   _compat_named_temporary_file_list[0]._created_at < t):
+            while (
+                len(_compat_named_temporary_file_list)
+                and _compat_named_temporary_file_list[0]._created_at < t
+            ):
                 _compat_named_temporary_file_list.pop(0).delete()
         finally:
             _compat_named_temporary_file_lock.release()
@@ -115,6 +133,7 @@ class CompatNamedTemporaryFile(object):
         seconds by unlinking them from the system. Checks for lingering tempfiles
         once per 30 seconds.
         """
+
         def try_cleanup():
             while True:
                 time.sleep(every)

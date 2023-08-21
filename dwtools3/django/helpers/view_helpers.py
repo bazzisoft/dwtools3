@@ -22,8 +22,9 @@ def render_template_to_string(template=None, vars=None, request=None, template_s
     :param HttpRequest request: The request object. May be None to exclude request context.
     :param str template_string: String content to use as the template.
     """
-    assert operator.xor(bool(template), bool(template_string)), \
-        'Exactly one of template or template_string must be specified.'
+    assert operator.xor(
+        bool(template), bool(template_string)
+    ), "Exactly one of template or template_string must be specified."
 
     if template_string:
         chain = []
@@ -35,10 +36,10 @@ def render_template_to_string(template=None, vars=None, request=None, template_s
                 chain.append((engine.name, e))
 
         if not template_obj:
-            msg = ['Parsing failed in all template engines.']
-            msg += ['{}: {}'.format(e[0], str(e[1])) for e in chain]
-            msg += ['Template Source:', template_string]
-            raise TemplateSyntaxError('\n'.join(msg))
+            msg = ["Parsing failed in all template engines."]
+            msg += ["{}: {}".format(e[0], str(e[1])) for e in chain]
+            msg += ["Template Source:", template_string]
+            raise TemplateSyntaxError("\n".join(msg))
 
         output = template_obj.render(vars, request)
     else:
@@ -47,8 +48,9 @@ def render_template_to_string(template=None, vars=None, request=None, template_s
     return output
 
 
-def validate_form(request, form_cls, initial=None, instance=None, condition=True, data=None,
-                  **extra_kwargs):
+def validate_form(
+    request, form_cls, initial=None, instance=None, condition=True, data=None, **extra_kwargs
+):
     """
     Creates a form instance with/without data depending
     on whether page was POSTed. Returns the form instance.
@@ -69,15 +71,16 @@ def validate_form(request, form_cls, initial=None, instance=None, condition=True
     """
     kwargs = {}
     if initial is not None:
-        kwargs['initial'] = initial
+        kwargs["initial"] = initial
     if instance is not None:
-        kwargs['instance'] = instance
+        kwargs["instance"] = instance
     if extra_kwargs:
         kwargs.update(extra_kwargs)
 
-    if (data or request.method == 'POST') and condition:
+    if (data or request.method == "POST") and condition:
         form = form_cls(
-            data=data or request.POST, files=(request.FILES if request.FILES else None), **kwargs)
+            data=data or request.POST, files=(request.FILES if request.FILES else None), **kwargs
+        )
     else:
         form = form_cls(**kwargs)
 
@@ -92,12 +95,12 @@ def set_page_meta(request, **kwargs):
 
     Standard keys to use include title, keywords, description & menu.
     """
-    if not hasattr(request, 'meta'):
+    if not hasattr(request, "meta"):
         request.meta = {}
 
-    canonical = kwargs.get('canonical', None)
-    if canonical and not canonical.startswith('http'):
-        kwargs['canonical'] = request.build_absolute_uri(canonical)
+    canonical = kwargs.get("canonical", None)
+    if canonical and not canonical.startswith("http"):
+        kwargs["canonical"] = request.build_absolute_uri(canonical)
 
     request.meta.update(kwargs)
 
@@ -115,6 +118,7 @@ def meta(**kwargs):
         def my_view(request):
             ...
     """
+
     def decorator(view_func):
         metadata = kwargs
 
@@ -124,6 +128,7 @@ def meta(**kwargs):
             return view_func(request, *args, **kwargs)
 
         return wrapper
+
     return decorator
 
 

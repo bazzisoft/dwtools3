@@ -79,8 +79,20 @@ Usage
     - Make use of the API functions. See :py:mod:`.api`
 """
 from .api import (
-    LoginResult, authenticate, create_multi_use_login_hash, create_single_use_login_hash, login,
-    logout, verify_multi_use_login_hash, verify_single_use_login_hash)
+    LoginResult,
+    authenticate,
+    create_multi_use_login_hash,
+    create_single_use_login_hash,
+    login,
+    logout,
+    verify_multi_use_login_hash,
+    verify_single_use_login_hash,
+)
 from .validators import (
-    validate_confirm_password, validate_confirm_password_on_form, validate_password,
-    validate_password_on_form, validate_username, validate_username_on_form)
+    validate_confirm_password,
+    validate_confirm_password_on_form,
+    validate_password,
+    validate_password_on_form,
+    validate_username,
+    validate_username_on_form,
+)

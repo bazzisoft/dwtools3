@@ -6,8 +6,7 @@ from ..helpers import SettingsProxy
 
 
 class SalesforceSettings(SettingsProxy):
-    """
-    """
+    """ """
 
     SALESFORCE_ENABLED = False
     """
@@ -19,22 +18,22 @@ class SalesforceSettings(SettingsProxy):
     Whether to use the salesforce sandbox APIs.
     """
 
-    SALESFORCE_USERNAME = ''
+    SALESFORCE_USERNAME = ""
     """
     Username for salesforce API.
     """
 
-    SALESFORCE_PASSWORD = ''
+    SALESFORCE_PASSWORD = ""
     """
     Password for salesforce API.
     """
 
-    SALESFORCE_SECURITY_TOKEN = ''
+    SALESFORCE_SECURITY_TOKEN = ""
     """
     Security token for salesforce API.
     """
 
-    SALESFORCE_EXTERNAL_ID_FIELD = 'ExternalID__c'
+    SALESFORCE_EXTERNAL_ID_FIELD = "ExternalID__c"
     """
     Specify the default field to use as an External ID on leads, accounts and contacts.
     """

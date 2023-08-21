@@ -16,9 +16,10 @@ class KeepCurrentInstanceChoicesModelFormMixin:
 
     **IMPORTANT**: This mixin must be inherited *before* ``ModelForm``.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        assert self.instance, 'This mixin can only be used with ModelForms.'
+        assert self.instance, "This mixin can only be used with ModelForms."
         if not self.instance.id:
             return
 
@@ -26,14 +27,14 @@ class KeepCurrentInstanceChoicesModelFormMixin:
             if isinstance(field, (forms.ModelChoiceField, forms.ModelMultipleChoiceField)):
                 curval = getattr(self.instance, fieldname, None)
                 if curval:
-                    if hasattr(curval, 'pk'):
+                    if hasattr(curval, "pk"):
                         field.queryset = (
                             field.queryset | curval.__class__.objects.filter(pk=curval.pk)
                         ).distinct()
-                    elif hasattr(curval, 'target_field'):
+                    elif hasattr(curval, "target_field"):
                         field.queryset = (
-                            field.queryset |
-                            curval.target_field.related_model.objects.filter(pk__in=curval.all())
+                            field.queryset
+                            | curval.target_field.related_model.objects.filter(pk__in=curval.all())
                         ).distinct()
                     else:
                         # TODO: Other cases we need to handle?

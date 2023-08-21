@@ -10,7 +10,7 @@ class DurationField(Field):
     widget = DurationInput
 
     default_error_messages = {
-        'invalid': _('Enter a valid duration.'),
+        "invalid": _("Enter a valid duration."),
     }
 
     def __init__(self, *args, **kwargs):
@@ -24,10 +24,10 @@ class DurationField(Field):
         try:
             return str_to_timedelta(value)
         except ValueError:
-            raise ValidationError(self.default_error_messages['invalid'])
+            raise ValidationError(self.default_error_messages["invalid"])
 
     def to_python(self, value):
         try:
             return str_to_timedelta(value)
         except ValueError:
-            raise ValidationError(self.default_error_messages['invalid'])
+            raise ValidationError(self.default_error_messages["invalid"])

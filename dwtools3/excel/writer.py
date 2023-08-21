@@ -21,21 +21,35 @@ class ExcelStyle:
 
     All other arguments are boolean.
     """
-    HALIGN_LEFT = 'left'
-    HALIGN_CENTER = 'center'
-    HALIGN_RIGHT = 'right'
-    HALIGN_JUSTIFY = 'justify'
 
-    VALIGN_TOP = 'top'
-    VALIGN_MIDDLE = 'center'
-    VALIGN_BOTTOM = 'bottom'
+    HALIGN_LEFT = "left"
+    HALIGN_CENTER = "center"
+    HALIGN_RIGHT = "right"
+    HALIGN_JUSTIFY = "justify"
 
-    def __init__(self, number_format=None, font=None, fontsize=None,
-                 bold=None, italic=None, underline=None, strike=None,
-                 color=None, bgcolor=None, align=None, valign=None,
-                 wrap_text=None, grid_color=None, colspan=None):
+    VALIGN_TOP = "top"
+    VALIGN_MIDDLE = "center"
+    VALIGN_BOTTOM = "bottom"
+
+    def __init__(
+        self,
+        number_format=None,
+        font=None,
+        fontsize=None,
+        bold=None,
+        italic=None,
+        underline=None,
+        strike=None,
+        color=None,
+        bgcolor=None,
+        align=None,
+        valign=None,
+        wrap_text=None,
+        grid_color=None,
+        colspan=None,
+    ):
         self._styles = locals().copy()
-        del self._styles['self']
+        del self._styles["self"]
         self._excel_style = Style()
 
         # Number Format
@@ -45,19 +59,19 @@ class ExcelStyle:
         # Fonts
         font_kwargs = {}
         if font is not None:
-            font_kwargs['family'] = font
+            font_kwargs["family"] = font
         if fontsize is not None:
-            font_kwargs['size'] = fontsize
+            font_kwargs["size"] = fontsize
         if bold is not None:
-            font_kwargs['bold'] = bold
+            font_kwargs["bold"] = bold
         if italic is not None:
-            font_kwargs['italic'] = italic
+            font_kwargs["italic"] = italic
         if underline is not None:
-            font_kwargs['underline'] = underline
+            font_kwargs["underline"] = underline
         if strike is not None:
-            font_kwargs['strikethrough'] = strike
+            font_kwargs["strikethrough"] = strike
         if color is not None:
-            font_kwargs['color'] = self._to_excel_color(color)
+            font_kwargs["color"] = self._to_excel_color(color)
 
         if len(font_kwargs):
             self._excel_style.font = Font(**font_kwargs)
@@ -77,34 +91,34 @@ class ExcelStyle:
         # Alignment
         align_kwargs = {}
         if align is not None:
-            align_kwargs['horizontal'] = align
+            align_kwargs["horizontal"] = align
         if valign is not None:
-            align_kwargs['vertical'] = valign
+            align_kwargs["vertical"] = valign
         if wrap_text is not None:
-            align_kwargs['wrap_text'] = wrap_text
+            align_kwargs["wrap_text"] = wrap_text
 
         if len(align_kwargs):
             self._excel_style.alignment = Alignment(**align_kwargs)
 
     def __str__(self):
-        s = ['ExcelStyle:']
+        s = ["ExcelStyle:"]
         for k in sorted(self._styles.keys()):
             v = self._styles[k]
             if v is None:
                 continue
-            if k in ('color', 'bgcolor', 'grid_color'):
-                v = '0x{:06x}'.format(v)
+            if k in ("color", "bgcolor", "grid_color"):
+                v = "0x{:06x}".format(v)
             elif isinstance(v, bool):
-                v = 'Y' if v else 'n'
-            s.append('{}={}'.format(k.split('_')[0].capitalize(), v))
-        return ' '.join(s)
+                v = "Y" if v else "n"
+            s.append("{}={}".format(k.split("_")[0].capitalize(), v))
+        return " ".join(s)
 
     def __repr__(self):
         return str(self)
 
     @property
     def colspan(self):
-        return self._styles['colspan']
+        return self._styles["colspan"]
 
     def copy(self, **kwargs):
         """
@@ -129,7 +143,8 @@ class ExcelWriter:
         to receive the file contents.
     :param str sheet_name: The name of the sheet to write to.
     """
-    def __init__(self, filename_or_stream, sheet_name='Sheet1'):
+
+    def __init__(self, filename_or_stream, sheet_name="Sheet1"):
         self._stream = filename_or_stream
         self._workbook = Workbook()
 
@@ -141,7 +156,7 @@ class ExcelWriter:
 
     @staticmethod
     def content_type():
-        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
     def __enter__(self):
         return self
@@ -176,15 +191,15 @@ class ExcelWriter:
         """
         current = self._sheet.get_col_style(index + 1)
         style = {
-            'format': current.format,
-            'size': current.size,
+            "format": current.format,
+            "size": current.size,
         }
 
         if number_format is not None:
-            style['format'] = Format(number_format)
+            style["format"] = Format(number_format)
 
         if width is not None:
-            style['size'] = width * 2
+            style["size"] = width * 2
 
         self._sheet.set_col_style(index + 1, Style(**style))
 
@@ -198,15 +213,15 @@ class ExcelWriter:
         """
         current = self._sheet.get_row_style(index + 1)
         style = {
-            'format': current.format,
-            'size': current.size,
+            "format": current.format,
+            "size": current.size,
         }
 
         if number_format is not None:
-            style['format'] = Format(number_format)
+            style["format"] = Format(number_format)
 
         if height is not None:
-            style['size'] = height * 2
+            style["size"] = height * 2
 
         self._sheet.set_row_style(index + 1, Style(**style))
 

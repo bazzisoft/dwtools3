@@ -77,9 +77,13 @@ from .enums import DataType, Align, VAlign, OutputType
 
 
 __all__ = [
-    'ReportDefinition',
-    'IReportWriter',
-    'IFormatter', 'DefaultFormatter',
-    'Style',
-    'DataType', 'Align', 'VAlign', 'OutputType',
+    "ReportDefinition",
+    "IReportWriter",
+    "IFormatter",
+    "DefaultFormatter",
+    "Style",
+    "DataType",
+    "Align",
+    "VAlign",
+    "OutputType",
 ]

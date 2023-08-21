@@ -10,6 +10,7 @@ class UTCTZInfo(tzinfo):
 
     Used only when pytz isn't available.
     """
+
     ZERO = timedelta(0)
 
     def __repr__(self):

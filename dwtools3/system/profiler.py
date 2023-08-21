@@ -9,7 +9,7 @@ def profile_function(fn, sort_by_cumulative_time=True):
     fn()
     pr.disable()
     s = StringIO.StringIO()
-    sortby = 'time' if not sort_by_cumulative_time else 'cumulative'
+    sortby = "time" if not sort_by_cumulative_time else "cumulative"
     ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
     ps.print_stats()
     return s.getvalue()

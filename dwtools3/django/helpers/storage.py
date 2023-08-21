@@ -32,6 +32,7 @@ class OverwriteStorage(FileSystemStorage):
     """
     File-system storage backend that overwrites files with the same name.
     """
+
     def get_available_name(self, name, max_length=None):
         if self.exists(name):
             self.delete(name)

@@ -13,4 +13,4 @@ def lookup(dct, key):
 @register.simple_tag(takes_context=True)
 def absolute_url(context, url, *args, **kwargs):
     url = resolve_url(url, *args, **kwargs)
-    return context['request'].build_absolute_uri(url)
+    return context["request"].build_absolute_uri(url)
