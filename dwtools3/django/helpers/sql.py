@@ -27,7 +27,20 @@ class RawSQLBuilder:
             connection = connections[connection]
         self._connection = connection or django_default_connection
         self._sql_parts = []
-        self._params = []
+        self._params = None
+
+    def _add_params(self, params):
+        if params is None:
+            return
+        if self._params is None:
+            assert isinstance(params, (list, tuple, dict)), "sql params must be list or dict"
+            self._params = params
+        elif isinstance(self._params, dict):
+            assert isinstance(params, dict), "cannot mix positional/named sql params"
+            self._params.update(params)
+        else:
+            assert isinstance(params, (list, tuple)), "cannot mix positional/named sql params"
+            self._params.extend(params)
 
     def add(self, sql, params=None):
         self.add_if(True, sql, params)
@@ -35,8 +48,7 @@ class RawSQLBuilder:
     def add_if(self, condition_expr, sql, params=None):
         if condition_expr:
             self._sql_parts.append(sql)
-            if params:
-                self._params.extend(params)
+            self._add_params(params)
 
     def get_sql(self):
         return ("\n".join(self._sql_parts), self._params)
