@@ -1,0 +1,4 @@
+graft dwtools3
+global-exclude _docs
+global-exclude __pycache__
+global-exclude *.py[co]
