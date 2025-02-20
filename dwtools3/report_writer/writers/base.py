@@ -48,7 +48,7 @@ class IReportWriter:
         for rowdict in rowdicts:
             self.writerow(rowdict, rowstyle=rowstyle)
 
-    def freeze_pane(self, col_idx=None, row_idx=None):
+    def freeze_pane(self, row_idx=None, col_idx=None):
         """
         Freezes the specified column and/or row panes if supported.
         """

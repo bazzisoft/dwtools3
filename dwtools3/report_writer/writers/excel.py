@@ -42,8 +42,8 @@ class ExcelReportWriter(IReportWriter):
         styledict = self._resolve_row_styles(styledict, rowstyle)
         self.writer.writerow(rowdict, styledict)
 
-    def freeze_pane(self, col_idx=None, row_idx=None):
-        self.writer.freeze_pane(col_idx, row_idx)
+    def freeze_pane(self, row_idx=None, col_idx=None):
+        self.writer.freeze_pane(row_idx, col_idx)
 
     def close(self, exception_was_raised=False):
         if not exception_was_raised:

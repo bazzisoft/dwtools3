@@ -144,6 +144,8 @@ class ExcelWriter:
     :param str sheet_name: The name of the sheet to write to.
     """
 
+    DEFAULT_COLUMN_WIDTH = 4.6
+
     def __init__(self, filename_or_stream, sheet_name="Sheet1"):
         self._stream = filename_or_stream
         self._workbook = Workbook()
@@ -171,6 +173,9 @@ class ExcelWriter:
     def add_sheet(self, sheet_name):
         self._sheet = self._workbook.new_sheet(sheet_name)
         self._rowcount = 0
+
+    def num_sheets(self):
+        return len(self._workbook)
 
     def num_rows(self):
         return self._rowcount
@@ -276,14 +281,7 @@ class ExcelWriter:
         for j, val in enumerate(rowdata):
             # Strip tzinfo from datetime objects. They
             # need to be localized before writing.
-            if isinstance(val, datetime):
-                val = val.replace(tzinfo=None)
-
-            # Coerce bool to int, excel can't format bools
-            # You can use this number_format for coerced value:
-            # '&quot;Yes&quot;;&quot;Yes&quot;;&quot;No&quot;'
-            elif isinstance(val, bool):
-                val = 1 if val else 0
+            val = self._coerce_to_excel_value(val)
 
             self._sheet.set_cell_value(i, j + 1, val)
             if val is not None and j < len(style) and style[j] is not None:
@@ -300,10 +298,47 @@ class ExcelWriter:
         for row in rows:
             self.writerow(row)
 
-    def freeze_pane(self, col_idx=None, row_idx=None):
+    def writecell(self, row_idx, col_idx, val, style=None):
         """
-        Freezes the specified column and/or row panes.
+        Writes a single cell using 1-based indexing.
         """
+        colspan = None
+        if isinstance(style, ExcelStyle):
+            colspan = style.colspan
+            style = style.get_excel_style()
+        elif self._default_style is not None:
+            colspan = self._default_style.colspan
+            style = self._default_style.get_excel_style()
+
+        val = self._coerce_to_excel_value(val)
+
+        self._sheet.set_cell_value(row_idx, col_idx, val)
+        if val is not None and style is not None:
+            self._sheet.set_cell_style(row_idx, col_idx, style)
+
+        # Merge any cells to effect "colspan"
+        if colspan is not None:
+            self._sheet.range((row_idx, col_idx), (row_idx, col_idx + colspan - 1)).merge()
+
+    def _coerce_to_excel_value(self, val):
+        # Strip tzinfo from datetime objects. They
+        # need to be localized before writing.
+        if isinstance(val, datetime):
+            return val.replace(tzinfo=None)
+        # Coerce bool to int, excel can't format bools
+        # You can use this number_format for coerced value:
+        # '&quot;Yes&quot;;&quot;Yes&quot;;&quot;No&quot;'
+        elif isinstance(val, bool):
+            return 1 if val else 0
+        # Otherwise, no action needed
+        else:
+            return val
+
+    def freeze_pane(self, row_idx=None, col_idx=None):
+        """
+        Freezes the specified column and/or row panes (1-based indexing)
+        """
+        # Note the x/y is reversed in the lib...
         self._sheet.panes = Panes(x=col_idx, y=row_idx, freeze=True)
 
     def close(self):
