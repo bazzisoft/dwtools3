@@ -165,6 +165,9 @@ class ExcelWriter:
         if exc_type is None:
             self.close()
 
+    def get_stream(self):
+        return self._stream
+
     def add_sheet(self, sheet_name):
         self._sheet = self._workbook.new_sheet(sheet_name)
         self._rowcount = 0
