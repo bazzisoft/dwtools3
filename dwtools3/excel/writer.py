@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 from pyexcelerate import Workbook, Style, Fill, Color, Font, Format, Alignment, Panes
 from pyexcelerate.Borders import Borders
@@ -128,6 +129,15 @@ class ExcelStyle:
         kw.update(kwargs)
         return ExcelStyle(**kw)
 
+    def copy_not_none(self, **kwargs):
+        """
+        Copy this style, optionally overriding any constructor values given in ``kwargs``
+        which are not None.
+        """
+        kw = self._styles.copy()
+        kw.update({k: v for k, v in kwargs.items() if v is not None})
+        return ExcelStyle(**kw)
+
     def get_excel_style(self):
         return self._excel_style
 
@@ -155,6 +165,8 @@ class ExcelWriter:
 
         self._default_style = None
         self._rowcount = 0
+        self._row_number_formats = {}
+        self._col_number_formats = {}
 
     @staticmethod
     def content_type():
@@ -190,9 +202,6 @@ class ExcelWriter:
         """
         Sets the width and/or number format of a single column in the sheet.
 
-        NOTE: Seems to be a bug setting the number format for a column to
-        a date format.
-
         :param int index: The 0-based index of the column.
         :param int width: The 'em' widths for the column.
         :param str number_format: The excel number format, eg '0.0%'
@@ -205,6 +214,7 @@ class ExcelWriter:
 
         if number_format is not None:
             style["format"] = Format(number_format)
+            self._col_number_formats[index] = number_format
 
         if width is not None:
             style["size"] = width * 2
@@ -227,6 +237,7 @@ class ExcelWriter:
 
         if number_format is not None:
             style["format"] = Format(number_format)
+            self._row_number_formats[index] = number_format
 
         if height is not None:
             style["size"] = height * 2
@@ -262,8 +273,8 @@ class ExcelWriter:
             If not specified uses default style, if set. Can use None in the list to leave
             a cell unstyled.
         """
-        self._rowcount += 1
         i = self._rowcount
+        self._rowcount += 1
 
         if isinstance(style, ExcelStyle):
             merges = [style.colspan] * len(rowdata)
@@ -283,13 +294,14 @@ class ExcelWriter:
             # need to be localized before writing.
             val = self._coerce_to_excel_value(val)
 
-            self._sheet.set_cell_value(i, j + 1, val)
+            self._sheet.set_cell_value(i + 1, j + 1, val)
             if val is not None and j < len(style) and style[j] is not None:
-                self._sheet.set_cell_style(i, j + 1, style[j])
+                s = self._adjust_style_for_number_format(i, j, style[j])
+                self._sheet.set_cell_style(i + 1, j + 1, s)
 
             # Merge any cells to effect "colspan"
             if val is not None and j < len(merges) and merges[j] is not None:
-                self._sheet.range((i, j + 1), (i, j + merges[j])).merge()
+                self._sheet.range((i + 1, j + 1), (i + 1, j + merges[j])).merge()
 
     def writerows(self, rows):
         """
@@ -300,7 +312,7 @@ class ExcelWriter:
 
     def writecell(self, row_idx, col_idx, val, style=None):
         """
-        Writes a single cell using 1-based indexing.
+        Writes a single cell using 0-based indexing.
         """
         colspan = None
         if isinstance(style, ExcelStyle):
@@ -312,13 +324,14 @@ class ExcelWriter:
 
         val = self._coerce_to_excel_value(val)
 
-        self._sheet.set_cell_value(row_idx, col_idx, val)
+        self._sheet.set_cell_value(row_idx + 1, col_idx + 1, val)
         if val is not None and style is not None:
-            self._sheet.set_cell_style(row_idx, col_idx, style)
+            style = self._adjust_style_for_number_format(row_idx, col_idx, style)
+            self._sheet.set_cell_style(row_idx + 1, col_idx + 1, style)
 
         # Merge any cells to effect "colspan"
         if colspan is not None:
-            self._sheet.range((row_idx, col_idx), (row_idx, col_idx + colspan - 1)).merge()
+            self._sheet.range((row_idx + 1, col_idx + 1), (row_idx + 1, col_idx + colspan)).merge()
 
     def _coerce_to_excel_value(self, val):
         # Strip tzinfo from datetime objects. They
@@ -334,12 +347,27 @@ class ExcelWriter:
         else:
             return val
 
+    def _adjust_style_for_number_format(self, row_idx, col_idx, style):
+        """
+        If we're styling an individual cell, that will override the row or column number format
+        even if it's not specified on the cell. So we adjust the style to the default number
+        format for this row or column if it's not set explicitly.
+        """
+        if style._format is not None:
+            return style
+        row_col_fmt = self._row_number_formats.get(row_idx) or self._col_number_formats.get(col_idx)
+        if row_col_fmt is None:
+            return style
+        s = copy.copy(style)
+        s.format = Format(row_col_fmt)
+        return s
+
     def freeze_pane(self, row_idx=None, col_idx=None):
         """
-        Freezes the specified column and/or row panes (1-based indexing)
+        Freezes the specified column and/or row panes (0-based indexing)
         """
         # Note the x/y is reversed in the lib...
-        self._sheet.panes = Panes(x=col_idx, y=row_idx, freeze=True)
+        self._sheet.panes = Panes(x=col_idx + 1, y=row_idx + 1, freeze=True)
 
     def close(self):
         """
