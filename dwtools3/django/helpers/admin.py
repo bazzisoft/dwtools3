@@ -24,7 +24,7 @@ def default_list_filter(callable=None, **default_filters):
 
         def new_changelist_view(self, request, *args, **kwargs):
             if urlsplit(
-                request.META.get("HTTP_REFERER", "")
+                request.headers.get("referer", "")
             ).path != request.path and not request.META.get("QUERY_STRING"):
                 filters = callable(request) if callable else default_filters
                 print(filters)

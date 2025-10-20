@@ -8,7 +8,7 @@ from django.db.models.aggregates import Max
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ValidationError
 from django.utils.text import get_text_list
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 # Add 'order_within_fields' meta option to django

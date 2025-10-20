@@ -127,8 +127,8 @@ def cors(origins):
         @wraps(fn)
         def wrapper(request, *args, **kwargs):
             response = fn(request, *args, **kwargs)
-            if request.META.get("HTTP_ORIGIN") and request.META.get("HTTP_ORIGIN") in origins:
-                response["Access-Control-Allow-Origin"] = request.META["HTTP_ORIGIN"]
+            if request.headers.get("origin") and request.headers.get("origin") in origins:
+                response["Access-Control-Allow-Origin"] = request.headers["origin"]
             return response
 
         return wrapper

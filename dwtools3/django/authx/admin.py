@@ -26,9 +26,10 @@ models based on ``AbstractUser``::
             (_('Extra fields'), {'fields': ('my_field',)}),
         )
 """
+
 import copy
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, UserChangeForm
 from django.core.exceptions import ValidationError

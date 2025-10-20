@@ -6,5 +6,4 @@ PyExcelerate~=0.13
 requests~=2.32
 simple-salesforce~=1.11
 twine
-black
-pylint
+ruff~=0.14

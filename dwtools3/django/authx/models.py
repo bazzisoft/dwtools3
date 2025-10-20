@@ -8,7 +8,7 @@ inheritance with a number of different ``AuthXAbstractUser`` subclasses.
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from dwtools3.django.helpers.fields import StrippedCharField
 from dwtools3.django.helpers.models import check_model_is_unique_with_conditions

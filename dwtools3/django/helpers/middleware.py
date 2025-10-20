@@ -22,9 +22,9 @@ def TranslateProxyRemoteAddrMiddleware(get_response):  # pylint: disable=invalid
     """
 
     def middleware(request):
-        if "HTTP_X_FORWARDED_FOR" in request.META:
+        if "x-forwarded-for" in request.headers:
             fwd_ip = ""
-            for ip in request.META["HTTP_X_FORWARDED_FOR"].split(","):
+            for ip in request.headers["x-forwarded-for"].split(","):
                 ip = ip.strip()
                 if ip and ip != "unknown":
                     fwd_ip = ip
