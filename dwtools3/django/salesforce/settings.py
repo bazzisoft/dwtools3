@@ -2,6 +2,7 @@
 Application-specific settings for salesforce.
 Override these in your Django settings file.
 """
+
 from ..helpers import SettingsProxy
 
 

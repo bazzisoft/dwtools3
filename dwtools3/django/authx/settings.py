@@ -2,6 +2,7 @@
 Application-specific settings for authx.
 Override these in your Django settings file.
 """
+
 from ..helpers import SettingsProxy
 
 

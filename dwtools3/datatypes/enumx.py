@@ -48,6 +48,7 @@ Usage
     >>> Regular.from_key(k)
     # Returns the enum instance for the given string key
 """
+
 import enum
 import itertools
 import operator

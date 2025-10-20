@@ -97,8 +97,7 @@ class PerformanceStatsMiddleware:
 
         formatted = []
         formatted.append(
-            "     STATS: total:{:4.0f}ms,  python:{:4.0f}ms,  "
-            "db:{:4.0f}ms,  queries:{:3d}".format(
+            "     STATS: total:{:4.0f}ms,  python:{:4.0f}ms,  db:{:4.0f}ms,  queries:{:3d}".format(
                 stats["total_time"] * 1000.0,
                 stats["python_time"] * 1000.0,
                 stats["db_time"] * 1000.0,
@@ -106,8 +105,7 @@ class PerformanceStatsMiddleware:
             )
         )
         formatted.append(
-            "MIDDLEWARE: total:{:4.0f}ms,  python:{:4.0f}ms,  "
-            "db:{:4.0f}ms,  queries:{:3d}".format(
+            "MIDDLEWARE: total:{:4.0f}ms,  python:{:4.0f}ms,  db:{:4.0f}ms,  queries:{:3d}".format(
                 stats["middleware_total_time"] * 1000.0,
                 stats["middleware_python_time"] * 1000.0,
                 stats["middleware_db_time"] * 1000.0,
@@ -115,8 +113,7 @@ class PerformanceStatsMiddleware:
             )
         )
         formatted.append(
-            "      VIEW: total:{:4.0f}ms,  python:{:4.0f}ms,  "
-            "db:{:4.0f}ms,  queries:{:3d}".format(
+            "      VIEW: total:{:4.0f}ms,  python:{:4.0f}ms,  db:{:4.0f}ms,  queries:{:3d}".format(
                 stats["view_total_time"] * 1000.0,
                 stats["view_python_time"] * 1000.0,
                 stats["view_db_time"] * 1000.0,

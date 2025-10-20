@@ -1,6 +1,7 @@
 """
 Helper functions/classes for models.
 """
+
 # pylint: disable=protected-access
 import re
 from django.db import models

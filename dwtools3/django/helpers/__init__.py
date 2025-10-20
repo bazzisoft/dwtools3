@@ -10,4 +10,5 @@ Installation
         )
 
 """
+
 from .settings import SettingsProxy

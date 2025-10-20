@@ -109,9 +109,9 @@ def update_record(sf_obj, data, *, id=None, external_id=None, external_id_field=
     :return: The salesforce id if updated, None if not found.
     """
     sf_obj = _resolve_sf_obj(sf_obj)
-    assert operator.xor(
-        bool(id), bool(external_id)
-    ), "Exactly one of id or external id must be specified."
+    assert operator.xor(bool(id), bool(external_id)), (
+        "Exactly one of id or external id must be specified."
+    )
 
     if not id:
         obj = get_by_external_id(sf_obj, external_id, external_id_field=external_id_field)
@@ -156,9 +156,9 @@ def delete_record(sf_obj, *, id=None, external_id=None, external_id_field=None):
     :return: The salesforce id if deleted, None if not found.
     """
     sf_obj = _resolve_sf_obj(sf_obj)
-    assert operator.xor(
-        bool(id), bool(external_id)
-    ), "Exactly one of id or external id must be specified."
+    assert operator.xor(bool(id), bool(external_id)), (
+        "Exactly one of id or external id must be specified."
+    )
 
     if not id:
         obj = get_by_external_id(sf_obj, external_id, external_id_field=external_id_field)

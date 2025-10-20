@@ -2,6 +2,7 @@
 """
 Utility functions to convert back and forth between a timestring and timedelta.
 """
+
 import re
 from datetime import timedelta
 

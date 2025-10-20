@@ -2,6 +2,7 @@
 """
 Helper functions for views.
 """
+
 import operator
 from functools import wraps
 
@@ -22,9 +23,9 @@ def render_template_to_string(template=None, vars=None, request=None, template_s
     :param HttpRequest request: The request object. May be None to exclude request context.
     :param str template_string: String content to use as the template.
     """
-    assert operator.xor(
-        bool(template), bool(template_string)
-    ), "Exactly one of template or template_string must be specified."
+    assert operator.xor(bool(template), bool(template_string)), (
+        "Exactly one of template or template_string must be specified."
+    )
 
     if template_string:
         chain = []

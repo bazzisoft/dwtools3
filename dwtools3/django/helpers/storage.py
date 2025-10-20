@@ -22,6 +22,7 @@ from dwtools3.django.helpers.storage import static_lazy
 lazy_url_str = static_lazy('my_url_name')
 
 """
+
 from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 from django.core.files.storage import FileSystemStorage
 from django.templatetags.static import static

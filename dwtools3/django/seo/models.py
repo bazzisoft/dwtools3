@@ -63,7 +63,7 @@ class Redirect(models.Model):
     url = models.CharField("URL", max_length=255, unique=True)
     target_url = models.TextField(blank=False)
     is_permanent = models.BooleanField(
-        default=False, help_text="Whether to use a 301 Permanent " "redirect for this entry."
+        default=False, help_text="Whether to use a 301 Permanent redirect for this entry."
     )
     with_query_string = models.BooleanField(
         default=False,

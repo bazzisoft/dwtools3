@@ -99,9 +99,7 @@ class HTMLReportWriter(IReportWriter):
 <style type="text/css">
 {}
 </style>
-""".format(
-                "\n".join(styles)
-            )
+""".format("\n".join(styles))
         )
 
     def _write_header(self):
@@ -109,9 +107,7 @@ class HTMLReportWriter(IReportWriter):
             """
 <table id="{}">
   <tbody>
-""".format(
-                self.table_id
-            )
+""".format(self.table_id)
         )
 
     def _write_footer(self):

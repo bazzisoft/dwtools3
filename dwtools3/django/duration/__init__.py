@@ -42,6 +42,7 @@ Enter time values as::
     3 days 2:20:10
     3d 2:20:10.123456
 """
+
 from .forms import DurationField
 from .widgets import DurationInput
 from .utils import format_duration_hhmm

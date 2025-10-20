@@ -5,6 +5,7 @@ emails as usernames and email verification.
 support to return the correct subclasses when using model
 inheritance with a number of different ``AuthXAbstractUser`` subclasses.
 """
+
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models

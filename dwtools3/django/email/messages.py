@@ -1,6 +1,7 @@
 """
 Provides enhanced email messaging such as mutlipart html/text emails.
 """
+
 import re
 
 from django.conf import settings

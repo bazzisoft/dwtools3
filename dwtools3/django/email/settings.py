@@ -3,6 +3,7 @@ Application-specific settings for email.
 Override these in your Django settings file.
 
 """
+
 from ..helpers import SettingsProxy
 
 

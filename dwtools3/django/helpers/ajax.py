@@ -1,6 +1,7 @@
 """
 Decorators and exceptions for handling Ajax views with JSON input and output.
 """
+
 import enum
 from functools import wraps
 import json
@@ -56,9 +57,9 @@ def ajax(methods, login_required=False, expires_in=None, encoder=DjangoJSONEncod
                 return {'success': False}
 
     """
-    assert isinstance(
-        methods, (str, tuple, list)
-    ), "First argument to @ajax must be a list of supported HTTP methods."
+    assert isinstance(methods, (str, tuple, list)), (
+        "First argument to @ajax must be a list of supported HTTP methods."
+    )
     methods = tuple(methods) if isinstance(methods, str) else methods
 
     def decorator(fn):

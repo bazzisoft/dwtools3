@@ -1,6 +1,7 @@
 """
 Public functions exposed by the authx application.
 """
+
 # pylint: disable=redefined-builtin
 from django.utils.translation import gettext_lazy as _
 from django.contrib import auth

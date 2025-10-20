@@ -69,6 +69,7 @@ as any timezone info is stripped out before rendering.
 Members
 -------
 """
+
 from .definition import ReportDefinition
 from .writers.base import IReportWriter
 from .formats import IFormatter, DefaultFormatter

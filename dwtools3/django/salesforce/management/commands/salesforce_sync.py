@@ -23,9 +23,7 @@ class Command(BaseCommand):
             type=int,
             dest="delay",
             default=0,
-            help=(
-                "Don't run updates until they've been scheduled " "for at least this long (secs)."
-            ),
+            help=("Don't run updates until they've been scheduled for at least this long (secs)."),
         )
 
     def set_verbosity(self, options):
@@ -59,8 +57,7 @@ class Command(BaseCommand):
                 api.run_sync_function(item)
             except Exception:
                 api.logger.exception(
-                    "Error while processing salesforce sync function %s().\n\n"
-                    "Parameters:\n%s\n\n",
+                    "Error while processing salesforce sync function %s().\n\nParameters:\n%s\n\n",
                     item.function,
                     pprint.pformat(item.params, indent=2),
                 )

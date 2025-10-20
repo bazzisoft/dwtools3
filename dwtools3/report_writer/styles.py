@@ -2,6 +2,7 @@
 Style classes to define styling and formatting
 for report data.
 """
+
 import enum
 
 

@@ -18,6 +18,7 @@ Usage
     with sql.execute() as cursor:
         return cursor.fetchall()
 """
+
 from django.db import connections, connection as django_default_connection
 
 

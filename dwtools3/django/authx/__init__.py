@@ -78,6 +78,7 @@ Usage
 
     - Make use of the API functions. See :py:mod:`.api`
 """
+
 from .api import (
     LoginResult,
     authenticate,
