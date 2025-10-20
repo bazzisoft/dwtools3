@@ -104,7 +104,7 @@ class CompatNamedTemporaryFile(object):
         self._reclose()
         try:
             os.unlink(self._name)
-        except:
+        except Exception:
             pass
 
     @staticmethod

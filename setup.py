@@ -1,3 +1,4 @@
+# ruff: noqa
 """
 A setuptools based setup module.
 See:

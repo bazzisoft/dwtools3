@@ -26,7 +26,7 @@ def create_seo_metatags_admin_list_column(get_url_for_instance_fn=None):
     See: ``__init__.py`` documentation.
     """
     if get_url_for_instance_fn is None:
-        get_url_for_instance_fn = lambda obj: obj.get_absolute_url()
+        get_url_for_instance_fn = lambda obj: obj.get_absolute_url()  # noqa: E731
 
     def _seo_link(self, obj):
         url = get_seo_metatags_admin_url(get_url_for_instance_fn(obj))

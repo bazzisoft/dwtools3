@@ -12,3 +12,7 @@ Installation
 """
 
 from .settings import SettingsProxy
+
+__all__ = [
+    "SettingsProxy",
+]

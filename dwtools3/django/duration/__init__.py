@@ -46,3 +46,9 @@ Enter time values as::
 from .forms import DurationField
 from .widgets import DurationInput
 from .utils import format_duration_hhmm
+
+__all__ = [
+    "DurationField",
+    "DurationInput",
+    "format_duration_hhmm",
+]
