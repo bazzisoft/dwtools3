@@ -1,4 +1,9 @@
 
+v4.0
+----
+- Upgrade to Django 5.2, drop support for Django < 5.2
+
+
 v3.1
 ----
 - Change OrderedModel.reorder() behaviour to better match expected drag & drop behaviour.
