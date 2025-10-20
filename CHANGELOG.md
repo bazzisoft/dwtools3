@@ -2,6 +2,12 @@
 v3.1
 ----
 - Change OrderedModel.reorder() behaviour to better match expected drag & drop behaviour.
+- Bugfixes for Excel formats
+- Improvements to excel writer
+- Support named sql params in RawSQLBuilder
+- Improve validation of JSON payloads
+- Allow custom data dict to validate_form()
+- Improved unix timestamp conversion
 
 
 v3.0
