@@ -3,6 +3,7 @@ Utility functions for working with dates and timezones.
 """
 
 from datetime import datetime, timezone, time
+import zoneinfo
 
 
 EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -23,3 +24,20 @@ def unix_timestamp_to_datetime(timestamp):
 
 def unix_timestamp_to_date(timestamp):
     return unix_timestamp_to_datetime(timestamp).date()
+
+
+def common_timezones():
+    """
+    Returns a list of common timezone names, similar to pytz.common_timezones.
+    """
+    return sorted(
+        [
+            tz
+            for tz in zoneinfo.available_timezones()
+            if (
+                "/" in tz
+                and not tz.startswith(("Etc/", "SystemV/", "Mexico/", "Brazil/", "Chile/"))
+            )
+            or tz in ("UTC", "GMT")
+        ]
+    )
