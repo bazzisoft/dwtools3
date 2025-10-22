@@ -33,12 +33,12 @@ class RawSQLBuilder:
     def _check_params(self, params):
         if isinstance(params, dict):
             assert all(not isinstance(p, tuple) for p in params.values()), (
-                "tuple parameters not supported, use lists which are SQL arrays "
+                "tuple sql parameters not supported, use lists which are SQL arrays "
                 "(possibly with `=ANY(%s)`)"
             )
         elif isinstance(params, (list, tuple)):
             assert all(not isinstance(p, tuple) for p in params), (
-                "tuple parameters not supported, use lists which are SQL arrays "
+                "tuple sql parameters not supported, use lists which are SQL arrays "
                 "(possibly with `=ANY(%s)`)"
             )
 
