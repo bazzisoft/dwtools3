@@ -30,25 +30,31 @@ class RawSQLBuilder:
         self._sql_parts = []
         self._params = None
 
+    def _check_params(self, params):
+        if isinstance(params, dict):
+            assert all(not isinstance(p, tuple) for p in params.values()), (
+                "tuple parameters not supported, use lists which are SQL arrays "
+                "(possibly with `=ANY(%s)`)"
+            )
+        elif isinstance(params, (list, tuple)):
+            assert all(not isinstance(p, tuple) for p in params), (
+                "tuple parameters not supported, use lists which are SQL arrays "
+                "(possibly with `=ANY(%s)`)"
+            )
+
     def _add_params(self, params):
         if params is None:
             return
+        self._check_params(params)
+
         if self._params is None:
             assert isinstance(params, (list, tuple, dict)), "sql params must be list or dict"
             self._params = params
         elif isinstance(self._params, dict):
             assert isinstance(params, dict), "cannot mix positional/named sql params"
-            assert all(not isinstance(p, tuple) for p in params.values()), (
-                "tuple parameters not supported, use lists which are SQL arrays "
-                "(possibly with `=ANY(%s)`)"
-            )
             self._params.update(params)
         else:
             assert isinstance(params, (list, tuple)), "cannot mix positional/named sql params"
-            assert all(not isinstance(p, tuple) for p in params), (
-                "tuple parameters not supported, use lists which are SQL arrays "
-                "(possibly with `=ANY(%s)`)"
-            )
             self._params.extend(params)
 
     def add(self, sql, params=None):
