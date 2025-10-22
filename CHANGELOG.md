@@ -2,6 +2,8 @@
 v4.0
 ----
 - Upgrade to Django 5.2, drop support for Django < 5.2
+- Support for psycopg v3, drop support for tuples passed into RawSQLBuilder
+  (see: https://www.psycopg.org/psycopg3/docs/basic/adapt.html#lists-adaptation)
 
 
 v3.1
