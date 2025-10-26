@@ -63,7 +63,7 @@ def get_by_external_id(sf_obj, external_id, *, external_id_field=None):
     logger.info("Salesforce: %s.get_by_custom_id(%s)", sf_obj.name, external_id)
 
     try:
-        return sf_obj.get_by_custom_id(external_id_field, external_id)
+        return sf_obj.get_by_custom_id(external_id_field, str(external_id))
     except SalesforceResourceNotFound:
         return None
 
