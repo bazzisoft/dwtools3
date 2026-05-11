@@ -34,6 +34,18 @@ class SalesforceSettings(SettingsProxy):
     Security token for salesforce API.
     """
 
+    SALESFORCE_JWT_CONSUMER_KEY = ""
+    """
+    Consumer key to an External Client App that enables JWT OAuth access to the salesforce API.
+    Requires specifying `SALESFORCE_USERNAME` as the user to request an access token for.
+    """
+
+    SALESFORCE_JWT_PRIVATE_KEY = ""
+    """
+    Private key for an External Client App that enables JWT OAuth access to the salesforce API.
+    Provide as a PEM formatted string.
+    """
+
     SALESFORCE_EXTERNAL_ID_FIELD = "ExternalID__c"
     """
     Specify the default field to use as an External ID on leads, accounts and contacts.

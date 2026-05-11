@@ -1,15 +1,15 @@
-from datetime import timedelta
 import importlib
 import logging
+from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
 from simple_salesforce import Salesforce
 from simple_salesforce.api import DEFAULT_API_VERSION
+
 from .models import SyncQueueItem
 from .settings import SalesforceSettings
-
 
 # ----------------------------
 # Salesforce Logger
@@ -31,13 +31,25 @@ def create_salesforce_instance():
     """
     Create a low-level simple-salesforce instance to query over the REST API.
     """
-    return Salesforce(
-        username=SalesforceSettings.SALESFORCE_USERNAME,
-        password=SalesforceSettings.SALESFORCE_PASSWORD,
-        security_token=SalesforceSettings.SALESFORCE_SECURITY_TOKEN,
-        domain="test" if SalesforceSettings.SALESFORCE_USE_SANDBOX else None,
-        version=SalesforceSettings.SALESFORCE_API_VERSION or DEFAULT_API_VERSION,
-    )
+    if SalesforceSettings.SALESFORCE_JWT_CONSUMER_KEY:
+        # Login with JWT OAuth for an external client app
+        return Salesforce(
+            username=SalesforceSettings.SALESFORCE_USERNAME,
+            consumer_key=SalesforceSettings.SALESFORCE_JWT_CONSUMER_KEY,
+            privatekey=SalesforceSettings.SALESFORCE_JWT_PRIVATE_KEY,
+            domain="test" if SalesforceSettings.SALESFORCE_USE_SANDBOX else None,
+            version=SalesforceSettings.SALESFORCE_API_VERSION or DEFAULT_API_VERSION,
+        )
+
+    else:
+        # Legacy SOAP login
+        return Salesforce(
+            username=SalesforceSettings.SALESFORCE_USERNAME,
+            password=SalesforceSettings.SALESFORCE_PASSWORD,
+            security_token=SalesforceSettings.SALESFORCE_SECURITY_TOKEN,
+            domain="test" if SalesforceSettings.SALESFORCE_USE_SANDBOX else None,
+            version=SalesforceSettings.SALESFORCE_API_VERSION or DEFAULT_API_VERSION,
+        )
 
 
 # Process-shared Salesforce instance from simple_salesforce
